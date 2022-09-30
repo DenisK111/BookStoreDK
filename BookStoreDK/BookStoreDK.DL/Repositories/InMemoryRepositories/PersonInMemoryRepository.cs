@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BookStoreDK.DL.Intefraces;
+﻿using BookStoreDK.DL.Intefraces;
 using BookStoreDK.Models.Models;
 
 namespace BookStoreDK.DL.Repositories.InMemoryRepositories
 {
     public class PersonInMemoryRepository : IPersonRepository
     {
-        private static List<Person> _users = new List<Person>()
+        private static List<Person> _person = new List<Person>()
         {
             new Person()
             {
@@ -32,23 +27,23 @@ namespace BookStoreDK.DL.Repositories.InMemoryRepositories
             }
 
         };
-       
+
 
         public IEnumerable<Person> GetAll()
         {
-            return _users;
+            return _person;
         }
 
         public Person? GetById(int id)
         {
-            return _users.FirstOrDefault(x => x.Id == id);
+            return _person.FirstOrDefault(x => x.Id == id);
         }
 
         public Person? Add(Person user)
         {
             try
             {
-                _users.Add(user);
+                _person.Add(user);
             }
             catch (Exception a)
             {
@@ -62,12 +57,12 @@ namespace BookStoreDK.DL.Repositories.InMemoryRepositories
 
         public Person? Update(Person user)
         {
-            var existingUser = _users.FirstOrDefault(x => x.Id == user.Id);
+            var existingPerson = _person.FirstOrDefault(x => x.Id == user.Id);
 
-            if (existingUser == null) return null;
+            if (existingPerson == null) return null;
 
-            _users.Remove(existingUser);
-            _users.Add(user);
+            _person.Remove(existingPerson);
+            _person.Add(user);
 
             return user;
 
@@ -75,9 +70,9 @@ namespace BookStoreDK.DL.Repositories.InMemoryRepositories
 
         public Person? Delete(int userId)
         {
-            var user = _users.FirstOrDefault(user => user.Id == userId);
-            _users.Remove(user);
-            return user;
+            var person = _person.FirstOrDefault(user => user.Id == userId);
+            _person.Remove(person);
+            return person;
         }
 
     }
