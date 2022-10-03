@@ -1,8 +1,13 @@
-﻿using BookStoreDK.DL.Intefraces;
+﻿using BookStoreDK.Models.Models;
 
 namespace BookStoreDK.BL.Interfaces
 {
-    public interface IBookService : IBookRepository
+    public interface IBookService
     {
+        Book? Add(Book model);
+        Book? Delete(int modelId);
+        IEnumerable<Book> GetAll();
+        Book? GetById(int id);
+        Book? Update(Book model);
     }
 }

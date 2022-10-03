@@ -39,11 +39,11 @@ namespace BookStoreDK.DL.Repositories.InMemoryRepositories
             return _person.FirstOrDefault(x => x.Id == id);
         }
 
-        public Person? Add(Person user)
+        public Person? Add(Person model)
         {
             try
             {
-                _person.Add(user);
+                _person.Add(model);
             }
             catch (Exception a)
             {
@@ -51,27 +51,27 @@ namespace BookStoreDK.DL.Repositories.InMemoryRepositories
                 return null;
             }
 
-            return user;
+            return model;
 
         }
 
-        public Person? Update(Person user)
+        public Person? Update(Person model)
         {
-            var existingPerson = _person.FirstOrDefault(x => x.Id == user.Id);
+            var existingPerson = _person.FirstOrDefault(x => x.Id == model.Id);
 
             if (existingPerson == null) return null;
 
             _person.Remove(existingPerson);
-            _person.Add(user);
+            _person.Add(model);
 
-            return user;
+            return model;
 
         }
 
-        public Person? Delete(int userId)
+        public Person? Delete(int personId)
         {
-            var person = _person.FirstOrDefault(user => user.Id == userId);
-            _person.Remove(person);
+            var person = _person.FirstOrDefault(user => user.Id == personId);
+            _person.Remove(person!);
             return person;
         }
 

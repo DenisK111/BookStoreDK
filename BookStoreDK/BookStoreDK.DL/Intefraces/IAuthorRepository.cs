@@ -2,7 +2,7 @@
 
 namespace BookStoreDK.DL.Intefraces
 {
-    public interface IAuthorRepository : IBaseRepository<Author>
+    public interface IAuthorRepository : IBaseRepository<Author,int>
     {
     }
 }

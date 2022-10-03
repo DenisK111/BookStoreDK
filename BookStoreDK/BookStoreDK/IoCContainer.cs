@@ -16,15 +16,17 @@ namespace BookStoreDK
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+           
+            // add services
+            builder.Services.AddSingleton<IPersonService, PersonService>();
+            builder.Services.AddSingleton<IAuthorService, AuthorService>();
+            builder.Services.AddSingleton<IBookService, BookService>();
+
             // add repositories
             builder.Services.AddSingleton<IPersonRepository, PersonInMemoryRepository>();
             builder.Services.AddSingleton<IAuthorRepository, AuthorInMemoryRepository>();
             builder.Services.AddSingleton<IBookRepository, BookInMemoryRepository>();
 
-            // add services
-            builder.Services.AddSingleton<IPersonService, PersonService>();
-            builder.Services.AddSingleton<IAuthorService, AuthorService>();
-            builder.Services.AddSingleton<IBookService, BookService>();
 
             return builder.Build();
 

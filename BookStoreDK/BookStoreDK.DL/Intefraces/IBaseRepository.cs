@@ -1,11 +1,11 @@
 ﻿namespace BookStoreDK.DL.Intefraces
 {
-    public interface IBaseRepository<T>
+    public interface IBaseRepository<T,TInt>
     {
         T? Add(T model);
-        T? Delete(int modelId);
+        T? Delete(TInt modelId);
         IEnumerable<T> GetAll();
-        T? GetById(int id);
+        T? GetById(TInt id);
         T? Update(T model);
     }
 }

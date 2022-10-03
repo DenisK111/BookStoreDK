@@ -38,8 +38,6 @@ namespace BookStoreDK.Controllers
         public Author? Add([FromBody] Author model)
         {
             return _authorService.Add(model);
-
-
         }
 
         [HttpPut]

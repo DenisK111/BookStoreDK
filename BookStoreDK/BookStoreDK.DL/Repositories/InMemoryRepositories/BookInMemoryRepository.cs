@@ -40,11 +40,11 @@ namespace BookStoreDK.DL.Repositories.InMemoryRepositories
             return _books.FirstOrDefault(x => x.Id == id);
         }
 
-        public Book? Add(Book user)
+        public Book? Add(Book model)
         {
             try
             {
-                _books.Add(user);
+                _books.Add(model);
             }
             catch (Exception a)
             {
@@ -52,26 +52,25 @@ namespace BookStoreDK.DL.Repositories.InMemoryRepositories
                 return null;
             }
 
-            return user;
+            return model;
 
         }
 
-        public Book? Update(Book user)
+        public Book? Update(Book model)
         {
-            var existingBook = _books.FirstOrDefault(x => x.Id == user.Id);
+            var existingBook = _books.FirstOrDefault(x => x.Id == model.Id);
 
             if (existingBook == null) return null;
 
             _books.Remove(existingBook);
-            _books.Add(user);
+            _books.Add(model);
 
-            return user;
-
+            return model;
         }
 
-        public Book? Delete(int userId)
+        public Book? Delete(int bookId)
         {
-            var book = _books.FirstOrDefault(user => user.Id == userId);
+            var book = _books.FirstOrDefault(user => user.Id == bookId);
             _books.Remove(book!);
             return book;
         }
