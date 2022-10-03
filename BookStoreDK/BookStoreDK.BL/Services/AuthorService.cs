@@ -40,6 +40,28 @@ namespace BookStoreDK.BL.Services
                 };
             }
         }
+
+        public AddAuthorsResponse AddRange(AddMultipleAuthorsRequest model)
+        {
+            var authorCollection = _mapper.Map<IEnumerable<Author>>(model.AuthorRequests);
+            var result = _repo.AddMultipleAuthors(authorCollection);
+
+            if (!result)
+            {
+                return new AddAuthorsResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.BadRequest,
+                    Message = "Failed to add authors"
+                };
+            }
+
+            return new AddAuthorsResponse()
+            {
+                HttpStatusCode = HttpStatusCode.OK,
+                Persons = authorCollection,
+            };
+        }
+
         public Author? Delete(int modelId)
         {
             return _repo.Delete(modelId);
@@ -50,10 +72,6 @@ namespace BookStoreDK.BL.Services
             return _repo.GetAll();
         }
 
-        public Author? GetAuthorByName(string name)
-        {
-            return _repo.GetAuthorByName(name);
-        }
 
         public Author? GetById(int id)
         {

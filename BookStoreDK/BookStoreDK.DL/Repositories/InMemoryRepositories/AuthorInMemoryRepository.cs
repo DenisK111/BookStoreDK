@@ -87,5 +87,19 @@ namespace BookStoreDK.DL.Repositories.InMemoryRepositories
         {
             return _authors.FirstOrDefault(x => x.Name == name);
         }
+
+        public bool AddMultipleAuthors(IEnumerable<Author> authors)
+        {
+            try
+            {
+                _authors.AddRange(authors);
+                return true;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using BookStoreDK.BL.Interfaces;
+using BookStoreDK.Models.Models;
 using BookStoreDK.Models.Requests;
 using BookStoreDK.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
@@ -72,6 +73,25 @@ namespace BookStoreDK.Controllers
                 });
             }
         }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpPost(nameof(AddAuthorRange))]
+        public IActionResult AddAuthorRange([FromBody] AddMultipleAuthorsRequest addMultipleAuthorRequests)
+        {
+            if (addMultipleAuthorRequests != null && !addMultipleAuthorRequests.AuthorRequests.Any())
+                return BadRequest(addMultipleAuthorRequests);
+            var result = _authorService.AddRange(addMultipleAuthorRequests);
+            if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+
+
+        }
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPut]
