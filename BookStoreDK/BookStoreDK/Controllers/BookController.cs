@@ -1,5 +1,6 @@
-﻿using BookStoreDK.BL.Interfaces;
-using BookStoreDK.Models.Models;
+﻿using System.Net;
+using BookStoreDK.BL.Interfaces;
+using BookStoreDK.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStoreDK.Controllers
@@ -8,7 +9,6 @@ namespace BookStoreDK.Controllers
     [Route("[controller]")]
     public class BookController : ControllerBase
     {
-
         private readonly ILogger<BookController> _logger;
         private readonly IBookService _bookService;
 
@@ -18,40 +18,80 @@ namespace BookStoreDK.Controllers
             _bookService = bookService;
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
-        public IEnumerable<Book> Get()
+        public IActionResult Get()
         {
-
-            return _bookService.GetAll();
-
+            return Ok(_bookService.GetAll());
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet(nameof(GetById))]
-
-        public Book? GetById(int Id)
+        public IActionResult GetById(int Id)
         {
-            return _bookService.GetById(Id);
+            var result = _bookService.GetById(Id);
 
+            if (result == null)
+            {
+                return BadRequest(new
+                {
+                    error = "Id does not exist"
+                });
+            }
+
+            return Ok(result);
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
-        public Book? Add([FromBody] Book model)
+        public IActionResult Add([FromBody] AddBookRequest model)
         {
-            return _bookService.Add(model);
+            var result = _bookService.Add(model);
+
+            if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
 
 
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPut]
-        public Book? Update([FromBody] Book model)
+        public IActionResult Update([FromBody] UpdateBookRequest model)
         {
-            return _bookService.Update(model);
+            var result = _bookService.Update(model);
+
+            if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete]
-        public Book? Delete([FromBody] int id)
+        public IActionResult Delete([FromBody] int id)
         {
-            return _bookService.Delete(id);
+            var result = _bookService.Delete(id);
+
+            if (result == null)
+            {
+                return BadRequest(new
+                {
+                    error = "Id does not exist"
+                });
+            }
+
+            return Ok(result);
+
         }
     }
 }

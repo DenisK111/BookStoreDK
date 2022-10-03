@@ -1,13 +1,15 @@
 ﻿using BookStoreDK.Models.Models;
+using BookStoreDK.Models.Requests;
+using BookStoreDK.Models.Responses;
 
 namespace BookStoreDK.BL.Interfaces
 {
     public interface IPersonService 
     {
-        Person? Add(Person model);
+        AddPersonResponse Add(AddPersonRequest model);
         Person? Delete(int modelId);
         IEnumerable<Person> GetAll();
         Person? GetById(int id);
-        Person? Update(Person model);
+        UpdatePersonResponse Update(UpdatePersonRequest model);
     }
 }

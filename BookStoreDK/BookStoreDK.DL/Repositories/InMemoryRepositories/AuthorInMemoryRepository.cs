@@ -82,5 +82,10 @@ namespace BookStoreDK.DL.Repositories.InMemoryRepositories
             _authors.Remove(author!);
             return author;
         }
+
+        public Author? GetAuthorByName(string name)
+        {
+            return _authors.FirstOrDefault(x => x.Name == name);
+        }
     }
 }

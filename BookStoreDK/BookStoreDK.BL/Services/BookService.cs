@@ -1,21 +1,42 @@
-﻿using BookStoreDK.BL.Interfaces;
+﻿using System.Net;
+using AutoMapper;
+using BookStoreDK.BL.Interfaces;
 using BookStoreDK.DL.Intefraces;
 using BookStoreDK.Models.Models;
+using BookStoreDK.Models.Requests;
+using BookStoreDK.Models.Responses;
 
 namespace BookStoreDK.BL.Services
 {
     public class BookService : IBookService
     {
         private readonly IBookRepository _repo;
+        private readonly IMapper _mapper;
 
-        public BookService(IBookRepository repo)
+        public BookService(IBookRepository repo, IMapper mapper)
         {
             _repo = repo;
+            _mapper = mapper;
         }
 
-        public Book? Add(Book model)
+        public AddBookResponse Add(AddBookRequest model)
         {
-            return _repo.Add(model);
+            var auth = _repo.GetBookByTitle(model.Title);
+
+            if (auth != null)
+                return new AddBookResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.BadRequest,
+                    Message = "Author already exist"
+                };
+            var bookObject = _mapper.Map<Book>(model);
+            var result = _repo.Add(bookObject);
+
+            return new AddBookResponse()
+            {
+                HttpStatusCode = HttpStatusCode.OK,
+                Book = result
+            };
         }
 
         public Book? Delete(int modelId)
@@ -33,9 +54,31 @@ namespace BookStoreDK.BL.Services
             return _repo.GetById(id);
         }
 
-        public Book? Update(Book model)
+        public UpdateBookResponse Update(UpdateBookRequest model)
         {
-            return _repo.Update(model);
+            var modelToUpdate = GetById(model.Id);
+
+            if (modelToUpdate == null)
+            {
+                return new UpdateBookResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.BadRequest,
+                    Message = "Author does not exist"
+                };
+            }
+            var bookObject = _mapper.Map<Book>(model);
+            var result = _repo.Update(bookObject);
+
+            return new UpdateBookResponse()
+            {
+                HttpStatusCode = HttpStatusCode.OK,
+                Book = result,
+            };
+        }
+
+        public Book? GetBookByName(string name)
+        {
+            return _repo.GetBookByTitle(name);
         }
     }
 }

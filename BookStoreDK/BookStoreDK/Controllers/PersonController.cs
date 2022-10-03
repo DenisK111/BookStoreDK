@@ -1,5 +1,6 @@
+using System.Net;
 using BookStoreDK.BL.Interfaces;
-using BookStoreDK.Models.Models;
+using BookStoreDK.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStoreDK.Controllers
@@ -8,50 +9,87 @@ namespace BookStoreDK.Controllers
     [Route("[controller]")]
     public class PersonController : ControllerBase
     {
-
         private readonly ILogger<PersonController> _logger;
-        private readonly IPersonService _personRepo;
+        private readonly IPersonService _personService;
 
-        public PersonController(ILogger<PersonController> logger, IPersonService userRepo)
+        public PersonController(ILogger<PersonController> logger, IPersonService personService)
         {
             _logger = logger;
-            _personRepo = userRepo;
+            _personService = personService;
         }
 
-        [HttpGet]
-        public IEnumerable<Person> Get()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet(nameof(Get))]
+        public IActionResult Get()
         {
-
-            return _personRepo.GetAll();
-
+            return Ok(_personService.GetAll());
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet(nameof(GetById))]
-
-        public Person? GetById(int Id)
+        public IActionResult GetById(int Id)
         {
-            return _personRepo.GetById(Id);
+            var result = _personService.GetById(Id);
+
+            if (result == null)
+            {
+                return BadRequest(new
+                {
+                    error = "Id does not exist"
+                });
+            }
+
+            return Ok(result);
 
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
-        public Person? Add([FromBody] Person model)
+        public IActionResult Add([FromBody] AddPersonRequest request)
         {
-            return _personRepo.Add(model);
+            var result = _personService.Add(request);
 
+            if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
+            {
+                return BadRequest(result);
+            }
 
+            return Ok(result);
         }
-
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPut]
-        public Person? Update([FromBody] Person model)
+        public IActionResult Update([FromBody] UpdatePersonRequest model)
         {
-            return _personRepo.Update(model);
+            var result = _personService.Update(model);
+
+            if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
 
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete]
-        public Person? Delete([FromBody] int id)
+        public IActionResult Delete([FromBody] int id)
         {
-            return _personRepo.Delete(id);
+            var result = _personService.Delete(id);
+
+            if (result == null)
+            {
+                return BadRequest(new
+                {
+                    error = "Id does not exist"
+                });
+            }
+
+            return Ok(result);
         }
     }
 }

@@ -2,8 +2,8 @@
 
 namespace BookStoreDK.DL.Intefraces
 {
-    public interface IPersonRepository : IBaseRepository<Person,int>
+    public interface IPersonRepository : IBaseRepository<Person, int>
     {
-        
+        Person? GetPersonByName(string name);
     }
 }

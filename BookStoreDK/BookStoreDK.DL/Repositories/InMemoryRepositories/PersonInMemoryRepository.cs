@@ -75,5 +75,9 @@ namespace BookStoreDK.DL.Repositories.InMemoryRepositories
             return person;
         }
 
+        public Person? GetPersonByName(string name)
+        {
+            return _person.FirstOrDefault(x => x.Name == name);
+        }
     }
 }

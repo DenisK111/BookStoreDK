@@ -1,23 +1,45 @@
-﻿using BookStoreDK.BL.Interfaces;
+﻿using System.Net;
+using AutoMapper;
+using BookStoreDK.BL.Interfaces;
 using BookStoreDK.DL.Intefraces;
 using BookStoreDK.Models.Models;
+using BookStoreDK.Models.Requests;
+using BookStoreDK.Models.Responses;
 
 namespace BookStoreDK.BL.Services
 {
     public class AuthorService : IAuthorService
     {
         private readonly IAuthorRepository _repo;
+        private readonly IMapper _mapper;
 
-        public AuthorService(IAuthorRepository repo)
+        public AuthorService(IAuthorRepository repo, IMapper mapper)
         {
             _repo = repo;
+            _mapper = mapper;
         }
 
-        public Author? Add(Author model)
+        public AddAuthorResponse Add(AddAuthorRequest author)
         {
-            return _repo.Add(model);
-        }
+            {
+                var auth = _repo.GetAuthorByName(author.Name);
 
+                if (auth != null)
+                    return new AddAuthorResponse()
+                    {
+                        HttpStatusCode = HttpStatusCode.BadRequest,
+                        Message = "Author already exist"
+                    };
+                var authorObject = _mapper.Map<Author>(author);
+                var result = _repo.Add(authorObject);
+
+                return new AddAuthorResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.OK,
+                    Author = result
+                };
+            }
+        }
         public Author? Delete(int modelId)
         {
             return _repo.Delete(modelId);
@@ -28,14 +50,37 @@ namespace BookStoreDK.BL.Services
             return _repo.GetAll();
         }
 
+        public Author? GetAuthorByName(string name)
+        {
+            return _repo.GetAuthorByName(name);
+        }
+
         public Author? GetById(int id)
         {
             return _repo.GetById(id);
         }
 
-        public Author? Update(Author model)
+        public UpdateAuthorResponse Update(UpdateAuthorRequest model)
         {
-            return _repo.Update(model);
+            var modelToUpdate = GetById(model.Id);
+
+            if (modelToUpdate == null)
+            {
+                return new UpdateAuthorResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.BadRequest,
+                    Message = "Author does not exist"
+                };
+            }
+            var authorObject = _mapper.Map<Author>(model);
+            var result = _repo.Update(authorObject);
+
+            return new UpdateAuthorResponse()
+            {
+                HttpStatusCode = HttpStatusCode.OK,
+                Author = result,
+            };
+
         }
     }
 }
