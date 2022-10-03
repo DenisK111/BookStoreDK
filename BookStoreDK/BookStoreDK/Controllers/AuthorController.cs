@@ -1,5 +1,7 @@
-﻿using BookStoreDK.BL.Interfaces;
-using BookStoreDK.Models.Models;
+﻿using System.Net;
+using BookStoreDK.BL.Interfaces;
+using BookStoreDK.Models.Requests;
+using BookStoreDK.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStoreDK.Controllers
@@ -8,7 +10,6 @@ namespace BookStoreDK.Controllers
     [Route("[controller]")]
     public class AuthorController : ControllerBase
     {
-
         private readonly ILogger<AuthorController> _logger;
         private readonly IAuthorService _authorService;
 
@@ -18,38 +19,91 @@ namespace BookStoreDK.Controllers
             _authorService = authorService;
         }
 
-        [HttpGet]
-        public IEnumerable<Author> Get()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet(nameof(Get))]
+        public IActionResult Get()
         {
-
-            return _authorService.GetAll();
-
+            _logger.LogInformation("Test");
+            _logger.LogDebug("Test");
+            return Ok(_authorService.GetAll());
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet(nameof(GetById))]
-
-        public Author? GetById(int Id)
+        public IActionResult GetById(int Id)
         {
-            return _authorService.GetById(Id);
+            var result = _authorService.GetById(Id);
+
+            if (result == null)
+            {
+                return BadRequest(new
+                {
+                    error = "Id does not exist"
+                });
+            }
+
+            return Ok(result);
 
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
-        public Author? Add([FromBody] Author model)
+        public IActionResult Add([FromBody] AddAuthorRequest request)
         {
-            return _authorService.Add(model);
-        }
+            AddAuthorResponse result = _authorService.Add(request);
+            try
+            {
+                if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
+                {
+                    throw new ArgumentException("Author already exists");
+                }
 
+                return Ok(result);
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return BadRequest(new
+                {
+                    error=ex.Message
+                });
+            }
+        }
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPut]
-        public Author? Update([FromBody] Author model)
+        public IActionResult Update([FromBody] UpdateAuthorRequest model)
         {
-            return _authorService.Update(model);
+            var result = _authorService.Update(model);
+
+            if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
 
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete]
-        public Author? Delete([FromBody] int id)
+        public IActionResult Delete([FromBody] int id)
         {
-            return _authorService.Delete(id);
+            var result = _authorService.Delete(id);
+
+            if (result == null)
+            {
+                return BadRequest(new
+                {
+                    error = "Id does not exist"
+                });
+            }
+
+            return Ok(result);
         }
     }
 }

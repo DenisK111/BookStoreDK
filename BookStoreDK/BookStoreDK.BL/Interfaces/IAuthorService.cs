@@ -1,13 +1,18 @@
 ﻿using BookStoreDK.Models.Models;
+using BookStoreDK.Models.Requests;
+using BookStoreDK.Models.Responses;
 
 namespace BookStoreDK.BL.Interfaces
 {
     public interface IAuthorService 
     {
-        Author? Add(Author model);
+        AddAuthorResponse Add(AddAuthorRequest model);
         Author? Delete(int modelId);
         IEnumerable<Author> GetAll();
         Author? GetById(int id);
-        Author? Update(Author model);
+        UpdateAuthorResponse Update(UpdateAuthorRequest model);
+        Author? GetAuthorByName(string name);
+
+
     }
 }
