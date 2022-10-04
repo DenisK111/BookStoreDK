@@ -7,8 +7,8 @@ using BookStoreDK.Models.Models;
 
 namespace BookStoreDK.Models.Responses
 {
-    public class AddAuthorsResponse : BaseResponse
+    public class AuthorResponse : BaseResponse
     {
-        public IEnumerable<Person> Persons { get; init; }
+        public Author? Author { get; init; }
     }
 }

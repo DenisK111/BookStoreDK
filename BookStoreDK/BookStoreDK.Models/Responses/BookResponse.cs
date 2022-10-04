@@ -2,7 +2,7 @@
 
 namespace BookStoreDK.Models.Responses
 {
-    public class AddBookResponse : BaseResponse
+    public class BookResponse : BaseResponse
     {
         public Book? Book { get; init; }
     }

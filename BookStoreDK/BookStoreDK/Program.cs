@@ -1,5 +1,7 @@
 
 using BookStoreDK.Extensions;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -19,6 +21,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.RegisterRepositories();
 builder.Services.RegisterServices()
     .AddAutoMapper(typeof(Program));
+
+builder.Services.AddFluentValidationAutoValidation()
+    .AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining(typeof(Program));
 
 var app = builder.Build();
 

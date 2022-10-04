@@ -19,66 +19,70 @@ namespace BookStoreDK.BL.Services
             _mapper = mapper;
         }
 
-        public AddBookResponse Add(AddBookRequest model)
+        public async Task<BookResponse> Add(AddBookRequest model)
         {
-            var auth = _repo.GetBookByTitle(model.Title);
+            var auth = await _repo.GetBookByTitle(model.Title);
 
             if (auth != null)
-                return new AddBookResponse()
+                return new BookResponse()
                 {
                     HttpStatusCode = HttpStatusCode.BadRequest,
                     Message = "Author already exist"
                 };
             var bookObject = _mapper.Map<Book>(model);
-            var result = _repo.Add(bookObject);
+            var result = await _repo.Add(bookObject);
 
-            return new AddBookResponse()
+            return new BookResponse()
             {
                 HttpStatusCode = HttpStatusCode.OK,
                 Book = result
             };
         }
 
-        public Book? Delete(int modelId)
+        public async Task<BookResponse> Delete(int modelId)
         {
-            return _repo.Delete(modelId);
+            // return await _repo.Delete(modelId);
+            return null;
         }
 
-        public IEnumerable<Book> GetAll()
+        public async Task<BookResponseCollectionResponse> GetAll()
         {
-            return _repo.GetAll();
+            // return await _repo.GetAll();
+            return null;
         }
 
-        public Book? GetById(int id)
+        public async Task<BookResponse> GetById(int id)
         {
-            return _repo.GetById(id);
+            //  return await _repo.GetById(id);
+            return null;
         }
 
-        public UpdateBookResponse Update(UpdateBookRequest model)
+        public async Task<BookResponse> Update(UpdateBookRequest model)
         {
             var modelToUpdate = GetById(model.Id);
 
             if (modelToUpdate == null)
             {
-                return new UpdateBookResponse()
+                return new BookResponse()
                 {
                     HttpStatusCode = HttpStatusCode.BadRequest,
                     Message = "Author does not exist"
                 };
             }
             var bookObject = _mapper.Map<Book>(model);
-            var result = _repo.Update(bookObject);
+            var result = await _repo.Update(bookObject);
 
-            return new UpdateBookResponse()
+            return new BookResponse()
             {
                 HttpStatusCode = HttpStatusCode.OK,
                 Book = result,
             };
         }
 
-        public Book? GetBookByName(string name)
+        public async Task<BookResponse> GetBookByName(string name)
         {
-            return _repo.GetBookByTitle(name);
+          //  return await _repo.GetBookByTitle(name);
+            return null;
         }
     }
 }

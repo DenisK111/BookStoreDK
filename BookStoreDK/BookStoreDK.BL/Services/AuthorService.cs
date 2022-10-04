@@ -12,28 +12,30 @@ namespace BookStoreDK.BL.Services
     {
         private readonly IAuthorRepository _repo;
         private readonly IMapper _mapper;
+        private readonly IBookRepository _booksRepo;
 
-        public AuthorService(IAuthorRepository repo, IMapper mapper)
+        public AuthorService(IAuthorRepository repo, IMapper mapper, IBookRepository booksRepo)
         {
             _repo = repo;
             _mapper = mapper;
+            _booksRepo = booksRepo;
         }
 
-        public AddAuthorResponse Add(AddAuthorRequest author)
+        public async Task<AuthorResponse> Add(AddAuthorRequest author)
         {
             {
-                var auth = _repo.GetAuthorByName(author.Name);
+                var auth = await _repo.GetAuthorByName(author.Name);
 
                 if (auth != null)
-                    return new AddAuthorResponse()
+                    return new AuthorResponse()
                     {
                         HttpStatusCode = HttpStatusCode.BadRequest,
-                        Message = "Author already exist"
+                        Message = "Author already exists"
                     };
                 var authorObject = _mapper.Map<Author>(author);
-                var result = _repo.Add(authorObject);
+                var result = await _repo.Add(authorObject);
 
-                return new AddAuthorResponse()
+                return new AuthorResponse()
                 {
                     HttpStatusCode = HttpStatusCode.OK,
                     Author = result
@@ -41,64 +43,105 @@ namespace BookStoreDK.BL.Services
             }
         }
 
-        public AddAuthorsResponse AddRange(AddMultipleAuthorsRequest model)
+        public async Task<AuthorsCollectionResponse> AddRange(AddMultipleAuthorsRequest model)
         {
             var authorCollection = _mapper.Map<IEnumerable<Author>>(model.AuthorRequests);
-            var result = _repo.AddMultipleAuthors(authorCollection);
+            var result = await _repo.AddMultipleAuthors(authorCollection);
 
             if (!result)
             {
-                return new AddAuthorsResponse()
+                return new AuthorsCollectionResponse()
                 {
                     HttpStatusCode = HttpStatusCode.BadRequest,
                     Message = "Failed to add authors"
                 };
             }
 
-            return new AddAuthorsResponse()
+            return new AuthorsCollectionResponse()
             {
                 HttpStatusCode = HttpStatusCode.OK,
-                Persons = authorCollection,
+                Authors = authorCollection,
             };
         }
 
-        public Author? Delete(int modelId)
+        public async Task<AuthorResponse> Delete(int modelId)
         {
-            return _repo.Delete(modelId);
+            
+            var booksCount = await _booksRepo.GetBooksCountByAuthorId(modelId);
+            if (booksCount > 0)
+            {
+                return new AuthorResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.BadRequest,
+                    Message = "Cannot Delete Author With Books"
+
+                };
+            }
+
+            var result = await _repo.Delete(modelId);
+            return CheckForNullAndReturnResponse(result, "Id does not exist");
+
         }
 
-        public IEnumerable<Author> GetAll()
+        public async Task<AuthorsCollectionResponse> GetAll()
         {
-            return _repo.GetAll();
+            var result = await _repo.GetAll();
+
+            return new AuthorsCollectionResponse()
+            {
+                Authors = result,
+                HttpStatusCode = HttpStatusCode.OK
+            };
+
         }
 
 
-        public Author? GetById(int id)
+        public async Task<AuthorResponse> GetById(int id)
         {
-            return _repo.GetById(id);
+            var result = await _repo.GetById(id);
+            return CheckForNullAndReturnResponse(result,"Id does not exist");
+                      
         }
 
-        public UpdateAuthorResponse Update(UpdateAuthorRequest model)
+        public async Task<AuthorResponse> Update(UpdateAuthorRequest model)
         {
-            var modelToUpdate = GetById(model.Id);
+            var modelToUpdate = await GetById(model.Id);
 
             if (modelToUpdate == null)
             {
-                return new UpdateAuthorResponse()
+                return new AuthorResponse()
                 {
                     HttpStatusCode = HttpStatusCode.BadRequest,
                     Message = "Author does not exist"
                 };
             }
             var authorObject = _mapper.Map<Author>(model);
-            var result = _repo.Update(authorObject);
+            var result = await _repo.Update(authorObject);
 
-            return new UpdateAuthorResponse()
+            return new AuthorResponse()
             {
                 HttpStatusCode = HttpStatusCode.OK,
                 Author = result,
             };
 
+        }
+
+        private AuthorResponse CheckForNullAndReturnResponse(Author? result,string errorMessage = "")
+        {
+            if (result == null)
+            {
+                return new AuthorResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.NotFound,
+                    Message = errorMessage,
+                };
+            }
+
+            return new AuthorResponse()
+            {
+                Author = result,
+                HttpStatusCode = HttpStatusCode.OK,
+            };
         }
     }
 }

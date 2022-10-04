@@ -19,10 +19,10 @@ namespace BookStoreDK.BL.Services
             _mapper = mapper;
         }
 
-        public AddPersonResponse Add(AddPersonRequest person)
+        public async Task<AddPersonResponse> Add(AddPersonRequest person)
         {
             {
-                var auth = _repo.GetPersonByName(person.Name);
+                var auth = await _repo.GetPersonByName(person.Name);
 
                 if (auth != null)
                     return new AddPersonResponse()
@@ -31,7 +31,7 @@ namespace BookStoreDK.BL.Services
                         Message = "Author already exist"
                     };
                 var personObject = _mapper.Map<Author>(person);
-                var result = _repo.Add(personObject);
+                var result = await _repo.Add(personObject);
 
                 return new AddPersonResponse()
                 {
@@ -42,24 +42,24 @@ namespace BookStoreDK.BL.Services
             }
         }
 
-        public Person? Delete(int modelId)
+        public async Task<Person?> Delete(int modelId)
         {
-            return _repo.Delete(modelId);
+            return await _repo.Delete(modelId);
         }
 
-        public IEnumerable<Person> GetAll()
+        public async Task<IEnumerable<Person>> GetAll()
         {
-            return _repo.GetAll();
+            return await _repo.GetAll();
         }
 
-        public Person? GetById(int id)
+        public async Task<Person?> GetById(int id)
         {
-            return _repo.GetById(id);
+            return await _repo.GetById(id);
         }
 
-        public UpdatePersonResponse Update(UpdatePersonRequest model)
+        public async Task<UpdatePersonResponse> Update(UpdatePersonRequest model)
         {
-            var modelToUpdate = GetById(model.Id);
+            var modelToUpdate = await GetById(model.Id);
 
             if (modelToUpdate == null)
             {
@@ -70,7 +70,7 @@ namespace BookStoreDK.BL.Services
                 };
             }
             var personObject = _mapper.Map<Author>(model);
-            var result = _repo.Update(personObject);
+            var result = await _repo.Update(personObject);
 
             return new UpdatePersonResponse()
             {

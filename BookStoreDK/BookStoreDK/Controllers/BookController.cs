@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using BookStoreDK.BL.Interfaces;
+using BookStoreDK.Extensions;
 using BookStoreDK.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,17 +21,17 @@ namespace BookStoreDK.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            return Ok(_bookService.GetAll());
+            return Ok(await _bookService.GetAll());
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet(nameof(GetById))]
-        public IActionResult GetById(int Id)
+        public async Task<IActionResult> GetById(int Id)
         {
-            var result = _bookService.GetById(Id);
+            var result = await _bookService.GetById(Id);
 
             if (result == null)
             {
@@ -46,41 +47,25 @@ namespace BookStoreDK.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
-        public IActionResult Add([FromBody] AddBookRequest model)
+        public async Task<IActionResult> Add([FromBody] AddBookRequest model)
         {
-            var result = _bookService.Add(model);
-
-            if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok(result);
-
-
+            return this.ProduceResponse(await _bookService.Add(model));
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPut]
-        public IActionResult Update([FromBody] UpdateBookRequest model)
+        public async Task<IActionResult> Update([FromBody] UpdateBookRequest model)
         {
-            var result = _bookService.Update(model);
-
-            if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok(result);
+            return this.ProduceResponse(await _bookService.Update(model));
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete]
-        public IActionResult Delete([FromBody] int id)
+        public async Task<IActionResult> Delete([FromBody] int id)
         {
-            var result = _bookService.Delete(id);
+            var result = await _bookService.Delete(id);
 
             if (result == null)
             {

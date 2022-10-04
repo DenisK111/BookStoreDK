@@ -2,6 +2,6 @@
 {
     public abstract record BaseIdModel<T>
     {
-        public T Id { get; init; }
+        public T Id { get; set; }
     }
 }

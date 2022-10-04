@@ -3,7 +3,7 @@ using BookStoreDK.Models.Models;
 
 namespace BookStoreDK.DL.Repositories.InMemoryRepositories
 {
-    public class AuthorInMemoryRepository : IAuthorRepository
+    public class AuthorInMemoryRepository 
 
 
     {

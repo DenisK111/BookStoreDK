@@ -8,6 +8,6 @@
 
         public DateTime DateOfBirth { get; init; }
 
-        public string NickName { get; init; } = null!;
+        public string? NickName { get; init; }
     }
 }
