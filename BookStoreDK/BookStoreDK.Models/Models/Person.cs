@@ -2,7 +2,6 @@
 {
     public record Person : BaseIdModel<int>
     {
-
         public string Name { get; init; } = null!;
 
         public int Age { get; init; }

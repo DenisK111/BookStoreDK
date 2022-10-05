@@ -1,5 +1,6 @@
 
 using BookStoreDK.Extensions;
+using BookStoreDK.HealthChecks;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Serilog;
@@ -26,6 +27,11 @@ builder.Services.AddFluentValidationAutoValidation()
     .AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining(typeof(Program));
 
+builder.Services.AddHealthChecks()
+    .AddCheck<SqlHealthCheck>("SQL Server")
+    .AddCheck<CustomHealthCheck>("Customer Health Check")
+    .AddUrlGroup(new Uri("https://google.bg"), name: "Google Service");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -40,5 +46,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.RegisterHealthChecks();
 
 app.Run();
