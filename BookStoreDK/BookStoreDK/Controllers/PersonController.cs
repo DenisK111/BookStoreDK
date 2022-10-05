@@ -1,5 +1,6 @@
 using System.Net;
 using BookStoreDK.BL.Interfaces;
+using BookStoreDK.BL.Services;
 using BookStoreDK.Extensions;
 using BookStoreDK.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
@@ -23,26 +24,16 @@ namespace BookStoreDK.Controllers
         [HttpGet(nameof(Get))]
         public async Task<IActionResult> Get()
         {
-            return Ok(await _personService.GetAll());
+            return this.ProduceResponse(await _personService.GetAll());
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet(nameof(GetById))]
         public async Task<IActionResult> GetById(int Id)
         {
-            var result = await _personService.GetById(Id);
-
-            if (result == null)
-            {
-                return BadRequest(new
-                {
-                    error = "Id does not exist"
-                });
-            }
-
-            return Ok(result);
-
+            return this.ProduceResponse(await _personService.GetById(Id));
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -52,6 +43,7 @@ namespace BookStoreDK.Controllers
         {
             return this.ProduceResponse(await _personService.Add(request));
         }
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPut]
@@ -60,23 +52,14 @@ namespace BookStoreDK.Controllers
             return this.ProduceResponse(await _personService.Update(model));
         }
 
-
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
-            var result = await _personService.Delete(id);
+            return this.ProduceResponse(await _personService.Delete(id));
 
-            if (result == null)
-            {
-                return BadRequest(new
-                {
-                    error = "Id does not exist"
-                });
-            }
-
-            return Ok(result);
         }
     }
 }

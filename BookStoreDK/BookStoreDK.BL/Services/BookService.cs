@@ -12,23 +12,37 @@ namespace BookStoreDK.BL.Services
     {
         private readonly IBookRepository _repo;
         private readonly IMapper _mapper;
+        private readonly IAuthorRepository _authorRepo;
 
-        public BookService(IBookRepository repo, IMapper mapper)
+        public BookService(IBookRepository repo, IMapper mapper,IAuthorRepository authorRepo)
         {
             _repo = repo;
             _mapper = mapper;
+            _authorRepo = authorRepo;
         }
 
         public async Task<BookResponse> Add(AddBookRequest model)
         {
-            var auth = await _repo.GetBookByTitle(model.Title);
+            var book = await _repo.GetBookByTitle(model.Title);
 
-            if (auth != null)
+            if (book != null)
                 return new BookResponse()
                 {
                     HttpStatusCode = HttpStatusCode.BadRequest,
-                    Message = "Author already exist"
+                    Message = "Book already exists"
                 };
+
+            var author = await _authorRepo.GetById(model.AuthorId);
+
+            if (author == null)
+            {
+                return new BookResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.BadRequest,
+                    Message = "Author Id Does not Exist"
+                };
+            }
+
             var bookObject = _mapper.Map<Book>(model);
             var result = await _repo.Add(bookObject);
 
@@ -41,20 +55,27 @@ namespace BookStoreDK.BL.Services
 
         public async Task<BookResponse> Delete(int modelId)
         {
-            // return await _repo.Delete(modelId);
-            return null;
+            var result = await _repo.Delete(modelId);
+            return CheckForNullAndReturnResponse(result, "Id does not exist");
+
         }
 
-        public async Task<BookResponseCollectionResponse> GetAll()
+        public async Task<BookCollectionResponse> GetAll()
         {
-            // return await _repo.GetAll();
-            return null;
+
+            var result = await _repo.GetAll();
+
+            return new BookCollectionResponse()
+            {
+                Books = result,
+                HttpStatusCode = HttpStatusCode.OK
+            };
         }
 
         public async Task<BookResponse> GetById(int id)
         {
-            //  return await _repo.GetById(id);
-            return null;
+            var result = await _repo.GetById(id);
+            return CheckForNullAndReturnResponse(result, "Id does not exist");
         }
 
         public async Task<BookResponse> Update(UpdateBookRequest model)
@@ -79,10 +100,23 @@ namespace BookStoreDK.BL.Services
             };
         }
 
-        public async Task<BookResponse> GetBookByName(string name)
+
+        private BookResponse CheckForNullAndReturnResponse(Book? result, string errorMessage = "")
         {
-          //  return await _repo.GetBookByTitle(name);
-            return null;
+            if (result == null)
+            {
+                return new BookResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.NotFound,
+                    Message = errorMessage,
+                };
+            }
+
+            return new BookResponse()
+            {
+                Book = result,
+                HttpStatusCode = HttpStatusCode.OK,
+            };
         }
     }
 }

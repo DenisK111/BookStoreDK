@@ -28,16 +28,15 @@ namespace BookStoreDK.DL.Repositories.MsSql
         public async Task<Book?> Add(Book model)
         {
             var query = @"INSERT INTO BOOKS (AuthorId,Title,LastUpdated,Quantity,Price)
-                          VALUES (@AuthorId,@Title,GetDate(),@Quantity,@Price)
-                          SELECT CAST(SCOPE_IDENTITY() as int)";
+                          VALUES (@AuthorId,@Title, GetDate() ,@Quantity,@Price)
+                          SELECT * FROM BOOKS WHERE Id = (SELECT CAST(SCOPE_IDENTITY() as int))";
             try
             {
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     await conn.OpenAsync();
-                    var result = await conn.QuerySingleAsync<int>(query, model);
-                    model.Id = result;
-                    return model;
+                    var result = await conn.QuerySingleAsync<Book>(query, model);
+                    return result;
                 }
             }
             catch (Exception e)
@@ -92,7 +91,7 @@ namespace BookStoreDK.DL.Repositories.MsSql
 
         public async Task<Book?> GetBookByTitle(string title)
         {
-            var query = @"SELECT * FROM Authors WITH(NOLOCK)
+            var query = @"SELECT * FROM BOOKS WITH(NOLOCK)
                           WHERE [Title] = @Title";
 
             try
@@ -121,7 +120,7 @@ namespace BookStoreDK.DL.Repositories.MsSql
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     await conn.OpenAsync();
-                    return await conn.ExecuteScalarAsync<int>(query,new {AuthorId = authorId});
+                    return await conn.ExecuteScalarAsync<int>(query, new { AuthorId = authorId });
                 }
             }
             catch (Exception e)
@@ -159,7 +158,7 @@ namespace BookStoreDK.DL.Repositories.MsSql
 
 
             var query = @"UPDATE Books
-                        SET [AuthorId] = @AuthorId, Title = @Title, LastUpdated = @LastUpdated, Quantity = @Quantity, Price = @Price
+                        SET [AuthorId] = @AuthorId, Title = @Title, LastUpdated = GetDate(), Quantity = @Quantity, Price = @Price
                         WHERE Id = @Id
                         SELECT * FROM Books
                         WHERE Id = @Id";
@@ -169,7 +168,7 @@ namespace BookStoreDK.DL.Repositories.MsSql
                 {
                     await conn.OpenAsync();
                     var result = await conn.QuerySingleAsync<Book>(query, model);
-                    return model;
+                    return result;
                 }
             }
             catch (Exception e)

@@ -8,7 +8,7 @@ namespace BookStoreDK.BL.Interfaces
     {
         Task<BookResponse> Add(AddBookRequest model);
         Task<BookResponse> Delete(int modelId);
-        Task<BookResponseCollectionResponse> GetAll();
+        Task<BookCollectionResponse> GetAll();
         Task<BookResponse> GetById(int id);
         Task<BookResponse> Update(UpdateBookRequest model);
 

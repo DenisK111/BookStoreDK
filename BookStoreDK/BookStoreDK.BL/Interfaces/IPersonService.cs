@@ -6,10 +6,10 @@ namespace BookStoreDK.BL.Interfaces
 {
     public interface IPersonService
     {
-        Task<AddPersonResponse> Add(AddPersonRequest model);
-        Task<Person?> Delete(int modelId);
-        Task<IEnumerable<Person>> GetAll();
-        Task<Person?> GetById(int id);
-        Task<UpdatePersonResponse> Update(UpdatePersonRequest model);
+        Task<PersonResponse> Add(AddPersonRequest model);
+        Task<PersonResponse> Delete(int modelId);
+        Task<PersonCollectionResponse> GetAll();
+        Task<PersonResponse> GetById(int id);
+        Task<PersonResponse> Update(UpdatePersonRequest model);
     }
 }

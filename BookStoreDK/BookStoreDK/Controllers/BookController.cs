@@ -23,25 +23,17 @@ namespace BookStoreDK.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return Ok(await _bookService.GetAll());
+            return this.ProduceResponse(await _bookService.GetAll());
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet(nameof(GetById))]
         public async Task<IActionResult> GetById(int Id)
         {
-            var result = await _bookService.GetById(Id);
-
-            if (result == null)
-            {
-                return BadRequest(new
-                {
-                    error = "Id does not exist"
-                });
-            }
-
-            return Ok(result);
+            return this.ProduceResponse(await _bookService.GetById(Id));
+                       
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -62,20 +54,11 @@ namespace BookStoreDK.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
-            var result = await _bookService.Delete(id);
-
-            if (result == null)
-            {
-                return BadRequest(new
-                {
-                    error = "Id does not exist"
-                });
-            }
-
-            return Ok(result);
+            return this.ProduceResponse(await _bookService.Delete(id));
 
         }
     }
