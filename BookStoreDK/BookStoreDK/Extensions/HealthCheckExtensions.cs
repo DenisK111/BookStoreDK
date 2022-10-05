@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using BookStoreDK.Models;
+﻿using BookStoreDK.Models.HealthCheckModels;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Newtonsoft.Json;
 

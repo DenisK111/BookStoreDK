@@ -1,5 +1,4 @@
-﻿using BookStoreDK.DL.Intefraces;
-using BookStoreDK.Models.Models;
+﻿using BookStoreDK.Models.Models;
 
 namespace BookStoreDK.DL.Repositories.InMemoryRepositories
 {

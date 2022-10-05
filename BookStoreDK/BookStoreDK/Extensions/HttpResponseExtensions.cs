@@ -15,7 +15,7 @@ namespace BookStoreDK.Extensions
                 case HttpStatusCode.NotFound:
                     return controller.NotFound(response);
                 case HttpStatusCode.BadRequest:
-                    return controller.BadRequest(new { error = response.Message });
+                    return controller.BadRequest(new ErrorResponse() {Error=response.Message});
                 default: return controller.StatusCode(500);
             }
         }

@@ -1,6 +1,4 @@
-using System.Net;
 using BookStoreDK.BL.Interfaces;
-using BookStoreDK.BL.Services;
 using BookStoreDK.Extensions;
 using BookStoreDK.Models.Requests;
 using Microsoft.AspNetCore.Mvc;

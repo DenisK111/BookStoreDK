@@ -1,5 +1,4 @@
-﻿using BookStoreDK.Models.Models;
-using BookStoreDK.Models.Requests;
+﻿using BookStoreDK.Models.Requests;
 using BookStoreDK.Models.Responses;
 
 namespace BookStoreDK.BL.Interfaces
