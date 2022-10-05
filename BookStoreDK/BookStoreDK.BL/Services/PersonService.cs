@@ -19,21 +19,21 @@ namespace BookStoreDK.BL.Services
             _mapper = mapper;
         }
 
-        public AddPersonResponse Add(AddPersonRequest person)
+        public async Task<PersonResponse> Add(AddPersonRequest person)
         {
             {
-                var auth = _repo.GetPersonByName(person.Name);
+                var auth = await _repo.GetPersonByName(person.Name);
 
                 if (auth != null)
-                    return new AddPersonResponse()
+                    return new PersonResponse()
                     {
                         HttpStatusCode = HttpStatusCode.BadRequest,
                         Message = "Author already exist"
                     };
                 var personObject = _mapper.Map<Author>(person);
-                var result = _repo.Add(personObject);
+                var result = await _repo.Add(personObject);
 
-                return new AddPersonResponse()
+                return new PersonResponse()
                 {
                     HttpStatusCode = HttpStatusCode.OK,
                     Person = result,
@@ -42,42 +42,68 @@ namespace BookStoreDK.BL.Services
             }
         }
 
-        public Person? Delete(int modelId)
+        public async Task<PersonResponse> Delete(int modelId)
         {
-            return _repo.Delete(modelId);
+            var result = await _repo.Delete(modelId);
+            return CheckForNullAndReturnResponse(result, "Id does not exist");
         }
 
-        public IEnumerable<Person> GetAll()
+        public async Task<PersonCollectionResponse> GetAll()
         {
-            return _repo.GetAll();
+            var result = await _repo.GetAll();
+
+            return new PersonCollectionResponse()
+            {
+                People = result,
+                HttpStatusCode = HttpStatusCode.OK
+            };
         }
 
-        public Person? GetById(int id)
+        public async Task<PersonResponse> GetById(int id)
         {
-            return _repo.GetById(id);
+            var result = await _repo.GetById(id);
+            return CheckForNullAndReturnResponse(result, "Id does not exist");
         }
 
-        public UpdatePersonResponse Update(UpdatePersonRequest model)
+        public async Task<PersonResponse> Update(UpdatePersonRequest model)
         {
-            var modelToUpdate = GetById(model.Id);
+            var modelToUpdate = await GetById(model.Id);
 
             if (modelToUpdate == null)
             {
-                return new UpdatePersonResponse()
+                return new PersonResponse()
                 {
                     HttpStatusCode = HttpStatusCode.BadRequest,
                     Message = "Author does not exist"
                 };
             }
             var personObject = _mapper.Map<Author>(model);
-            var result = _repo.Update(personObject);
+            var result = await _repo.Update(personObject);
 
-            return new UpdatePersonResponse()
+            return new PersonResponse()
             {
                 HttpStatusCode = HttpStatusCode.OK,
                 Person = result,
             };
 
+        }
+
+        private PersonResponse CheckForNullAndReturnResponse(Person? result, string errorMessage = "")
+        {
+            if (result == null)
+            {
+                return new PersonResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.NotFound,
+                    Message = errorMessage,
+                };
+            }
+
+            return new PersonResponse()
+            {
+                Person = result,
+                HttpStatusCode = HttpStatusCode.OK,
+            };
         }
     }
 }

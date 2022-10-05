@@ -1,5 +1,8 @@
 ﻿using System.Net;
+using System.Reflection;
 using BookStoreDK.BL.Interfaces;
+using BookStoreDK.Extensions;
+using BookStoreDK.Models.Models;
 using BookStoreDK.Models.Requests;
 using BookStoreDK.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
@@ -21,89 +24,52 @@ namespace BookStoreDK.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet(nameof(Get))]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            _logger.LogInformation("Test");
-            _logger.LogDebug("Test");
-            return Ok(_authorService.GetAll());
+            return this.ProduceResponse(await _authorService.GetAll());
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet(nameof(GetById))]
-        public IActionResult GetById(int Id)
+        public async Task<IActionResult> GetById(int Id)
         {
-            var result = _authorService.GetById(Id);
-
-            if (result == null)
-            {
-                return BadRequest(new
-                {
-                    error = "Id does not exist"
-                });
-            }
-
-            return Ok(result);
-
+            return this.ProduceResponse(await _authorService.GetById(Id));
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
-        public IActionResult Add([FromBody] AddAuthorRequest request)
+        public async Task<IActionResult> Add([FromBody] AddAuthorRequest request)
         {
-            AddAuthorResponse result = _authorService.Add(request);
-            try
-            {
-                if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
-                {
-                    throw new ArgumentException("Author already exists");
-                }
-
-                return Ok(result);
-            }
-
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                return BadRequest(new
-                {
-                    error=ex.Message
-                });
-            }
+            return this.ProduceResponse(await _authorService.Add(request));
         }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpPost(nameof(AddAuthorRange))]
+        public async Task<IActionResult> AddAuthorRange([FromBody] AddMultipleAuthorsRequest addMultipleAuthorRequests)
+        {
+            return this.ProduceResponse(await _authorService.AddRange(addMultipleAuthorRequests));
+        }
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPut]
-        public IActionResult Update([FromBody] UpdateAuthorRequest model)
+        public async Task<IActionResult> Update([FromBody] UpdateAuthorRequest model)
         {
-            var result = _authorService.Update(model);
-
-            if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok(result);
+            return this.ProduceResponse(await _authorService.Update(model));
         }
 
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete]
-        public IActionResult Delete([FromBody] int id)
+        public async Task<IActionResult> Delete([FromBody] int id)
         {
-            var result = _authorService.Delete(id);
-
-            if (result == null)
-            {
-                return BadRequest(new
-                {
-                    error = "Id does not exist"
-                });
-            }
-
-            return Ok(result);
+            return this.ProduceResponse(await _authorService.Delete(id));
         }
     }
 }

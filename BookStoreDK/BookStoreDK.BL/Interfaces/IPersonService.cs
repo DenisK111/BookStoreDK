@@ -4,12 +4,12 @@ using BookStoreDK.Models.Responses;
 
 namespace BookStoreDK.BL.Interfaces
 {
-    public interface IPersonService 
+    public interface IPersonService
     {
-        AddPersonResponse Add(AddPersonRequest model);
-        Person? Delete(int modelId);
-        IEnumerable<Person> GetAll();
-        Person? GetById(int id);
-        UpdatePersonResponse Update(UpdatePersonRequest model);
+        Task<PersonResponse> Add(AddPersonRequest model);
+        Task<PersonResponse> Delete(int modelId);
+        Task<PersonCollectionResponse> GetAll();
+        Task<PersonResponse> GetById(int id);
+        Task<PersonResponse> Update(UpdatePersonRequest model);
     }
 }

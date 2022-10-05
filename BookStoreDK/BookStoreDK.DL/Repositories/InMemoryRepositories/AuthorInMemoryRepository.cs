@@ -3,7 +3,7 @@ using BookStoreDK.Models.Models;
 
 namespace BookStoreDK.DL.Repositories.InMemoryRepositories
 {
-    public class AuthorInMemoryRepository : IAuthorRepository
+    public class AuthorInMemoryRepository 
 
 
     {
@@ -86,6 +86,20 @@ namespace BookStoreDK.DL.Repositories.InMemoryRepositories
         public Author? GetAuthorByName(string name)
         {
             return _authors.FirstOrDefault(x => x.Name == name);
+        }
+
+        public bool AddMultipleAuthors(IEnumerable<Author> authors)
+        {
+            try
+            {
+                _authors.AddRange(authors);
+                return true;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
         }
     }
 }

@@ -2,10 +2,10 @@
 {
     public interface IBaseRepository<T,TId>
     {
-        T? Add(T model);
-        T? Delete(TId modelId);
-        IEnumerable<T> GetAll();
-        T? GetById(TId id);
-        T? Update(T model);
+        Task<T?> Add(T model);
+        Task<T?> Delete(TId modelId);
+        Task<IEnumerable<T>> GetAll();
+        Task<T?> GetById(TId id);
+        Task<T?> Update(T model);
     }
 }

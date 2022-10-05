@@ -2,8 +2,10 @@
 
 namespace BookStoreDK.DL.Intefraces
 {
-    public interface IAuthorRepository : IBaseRepository<Author,int>
+    public interface IAuthorRepository : IBaseRepository<Author, int>
     {
-        public Author? GetAuthorByName(string name);
+        Task<Author?> GetAuthorByName(string name);
+
+        Task<bool> AddMultipleAuthors(IEnumerable<Author> authors);
     }
 }

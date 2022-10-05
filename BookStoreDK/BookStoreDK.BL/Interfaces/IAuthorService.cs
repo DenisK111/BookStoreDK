@@ -4,15 +4,14 @@ using BookStoreDK.Models.Responses;
 
 namespace BookStoreDK.BL.Interfaces
 {
-    public interface IAuthorService 
+    public interface IAuthorService
     {
-        AddAuthorResponse Add(AddAuthorRequest model);
-        Author? Delete(int modelId);
-        IEnumerable<Author> GetAll();
-        Author? GetById(int id);
-        UpdateAuthorResponse Update(UpdateAuthorRequest model);
-        Author? GetAuthorByName(string name);
+        Task<AuthorResponse> Add(AddAuthorRequest model);
+        Task<AuthorResponse> Delete(int modelId);
+        Task<AuthorsCollectionResponse> GetAll();
+        Task<AuthorResponse> GetById(int id);
+        Task<AuthorResponse> Update(UpdateAuthorRequest model);
 
-
+        Task<AuthorsCollectionResponse> AddRange(AddMultipleAuthorsRequest model);
     }
 }

@@ -12,73 +12,111 @@ namespace BookStoreDK.BL.Services
     {
         private readonly IBookRepository _repo;
         private readonly IMapper _mapper;
+        private readonly IAuthorRepository _authorRepo;
 
-        public BookService(IBookRepository repo, IMapper mapper)
+        public BookService(IBookRepository repo, IMapper mapper,IAuthorRepository authorRepo)
         {
             _repo = repo;
             _mapper = mapper;
+            _authorRepo = authorRepo;
         }
 
-        public AddBookResponse Add(AddBookRequest model)
+        public async Task<BookResponse> Add(AddBookRequest model)
         {
-            var auth = _repo.GetBookByTitle(model.Title);
+            var book = await _repo.GetBookByTitle(model.Title);
 
-            if (auth != null)
-                return new AddBookResponse()
+            if (book != null)
+                return new BookResponse()
                 {
                     HttpStatusCode = HttpStatusCode.BadRequest,
-                    Message = "Author already exist"
+                    Message = "Book already exists"
                 };
-            var bookObject = _mapper.Map<Book>(model);
-            var result = _repo.Add(bookObject);
 
-            return new AddBookResponse()
+            var author = await _authorRepo.GetById(model.AuthorId);
+
+            if (author == null)
+            {
+                return new BookResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.BadRequest,
+                    Message = "Author Id Does not Exist"
+                };
+            }
+
+            var bookObject = _mapper.Map<Book>(model);
+            var result = await _repo.Add(bookObject);
+
+            return new BookResponse()
             {
                 HttpStatusCode = HttpStatusCode.OK,
                 Book = result
             };
         }
 
-        public Book? Delete(int modelId)
+        public async Task<BookResponse> Delete(int modelId)
         {
-            return _repo.Delete(modelId);
+            var result = await _repo.Delete(modelId);
+            return CheckForNullAndReturnResponse(result, "Id does not exist");
+
         }
 
-        public IEnumerable<Book> GetAll()
+        public async Task<BookCollectionResponse> GetAll()
         {
-            return _repo.GetAll();
+
+            var result = await _repo.GetAll();
+
+            return new BookCollectionResponse()
+            {
+                Books = result,
+                HttpStatusCode = HttpStatusCode.OK
+            };
         }
 
-        public Book? GetById(int id)
+        public async Task<BookResponse> GetById(int id)
         {
-            return _repo.GetById(id);
+            var result = await _repo.GetById(id);
+            return CheckForNullAndReturnResponse(result, "Id does not exist");
         }
 
-        public UpdateBookResponse Update(UpdateBookRequest model)
+        public async Task<BookResponse> Update(UpdateBookRequest model)
         {
             var modelToUpdate = GetById(model.Id);
 
             if (modelToUpdate == null)
             {
-                return new UpdateBookResponse()
+                return new BookResponse()
                 {
                     HttpStatusCode = HttpStatusCode.BadRequest,
                     Message = "Author does not exist"
                 };
             }
             var bookObject = _mapper.Map<Book>(model);
-            var result = _repo.Update(bookObject);
+            var result = await _repo.Update(bookObject);
 
-            return new UpdateBookResponse()
+            return new BookResponse()
             {
                 HttpStatusCode = HttpStatusCode.OK,
                 Book = result,
             };
         }
 
-        public Book? GetBookByName(string name)
+
+        private BookResponse CheckForNullAndReturnResponse(Book? result, string errorMessage = "")
         {
-            return _repo.GetBookByTitle(name);
+            if (result == null)
+            {
+                return new BookResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.NotFound,
+                    Message = errorMessage,
+                };
+            }
+
+            return new BookResponse()
+            {
+                Book = result,
+                HttpStatusCode = HttpStatusCode.OK,
+            };
         }
     }
 }

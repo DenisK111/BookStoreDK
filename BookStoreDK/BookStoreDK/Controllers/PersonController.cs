@@ -1,5 +1,7 @@
 using System.Net;
 using BookStoreDK.BL.Interfaces;
+using BookStoreDK.BL.Services;
+using BookStoreDK.Extensions;
 using BookStoreDK.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,76 +22,44 @@ namespace BookStoreDK.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet(nameof(Get))]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            return Ok(_personService.GetAll());
+            return this.ProduceResponse(await _personService.GetAll());
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet(nameof(GetById))]
-        public IActionResult GetById(int Id)
+        public async Task<IActionResult> GetById(int Id)
         {
-            var result = _personService.GetById(Id);
-
-            if (result == null)
-            {
-                return BadRequest(new
-                {
-                    error = "Id does not exist"
-                });
-            }
-
-            return Ok(result);
-
+            return this.ProduceResponse(await _personService.GetById(Id));
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
-        public IActionResult Add([FromBody] AddPersonRequest request)
+        public async Task<IActionResult> Add([FromBody] AddPersonRequest request)
         {
-            var result = _personService.Add(request);
-
-            if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok(result);
+            return this.ProduceResponse(await _personService.Add(request));
         }
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPut]
-        public IActionResult Update([FromBody] UpdatePersonRequest model)
+        public async Task<IActionResult> Update([FromBody] UpdatePersonRequest model)
         {
-            var result = _personService.Update(model);
-
-            if (result!.HttpStatusCode == HttpStatusCode.BadRequest)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok(result);
+            return this.ProduceResponse(await _personService.Update(model));
         }
-
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete]
-        public IActionResult Delete([FromBody] int id)
+        public async Task<IActionResult> Delete([FromBody] int id)
         {
-            var result = _personService.Delete(id);
+            return this.ProduceResponse(await _personService.Delete(id));
 
-            if (result == null)
-            {
-                return BadRequest(new
-                {
-                    error = "Id does not exist"
-                });
-            }
-
-            return Ok(result);
         }
     }
 }
