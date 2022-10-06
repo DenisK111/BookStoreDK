@@ -7,10 +7,8 @@ using BookStoreDK.Models.Models;
 using BookStoreDK.Models.Requests;
 using BookStoreDK.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NuGet.Frameworks;
 
 namespace BookStoreDK.Tests
 {
@@ -22,8 +20,6 @@ namespace BookStoreDK.Tests
             new Author() { Name = "Gosho",Id=3,Age=20,DateOfBirth=new DateTime(1980,5,1),NickName="Gogo"},
             new Author() { Name = "Ivan",Id=2,Age=22,DateOfBirth=new DateTime(1945,9,22),NickName="Vanka"},
         };
-
-
 
         private IList<Book> _books = new List<Book>()
         {
@@ -148,7 +144,6 @@ namespace BookStoreDK.Tests
 
         public async Task Author_GetById_NotFound()
         {
-
             //setup
             var authorId = 4;
             var expectedAuthor = _authors.FirstOrDefault(x => x.Id == authorId);
@@ -210,7 +205,6 @@ namespace BookStoreDK.Tests
 
         }).ReturnsAsync(() => _authors.FirstOrDefault(x => x.Id == author.Id));
 
-
             // inject 
 
             var controller = GetAuthorController();
@@ -224,22 +218,22 @@ namespace BookStoreDK.Tests
             var okObjectResult = result as OkObjectResult;
             Assert.NotNull(okObjectResult);
 
-            var resultValue = okObjectResult.Value as AuthorResponse;
+            var resultValue = okObjectResult!.Value as AuthorResponse;
             Assert.NotNull(resultValue);
 
-            var resultAuthor = resultValue.Author;
+            var resultAuthor = resultValue!.Author;
             Assert.NotNull(resultAuthor);
 
             Assert.Equal(author, resultAuthor);
 
             Assert.Equal(4, _authors.Count());
-
         }
 
         [Fact]
         public async Task Author_Add_WhenExists()
         {
             //setup
+
             var expectedErrorMessage = "Author already exists";
             var request = new AddAuthorRequest()
             {
@@ -272,7 +266,6 @@ namespace BookStoreDK.Tests
             _authorRepositoryMock
                 .Setup(x => x.GetAuthorByName(request.Name))
                 .ReturnsAsync(_authors.FirstOrDefault(x => x.Name == request.Name));
-
 
             // inject 
 
@@ -329,9 +322,8 @@ namespace BookStoreDK.Tests
           }).ReturnsAsync(() => _authors.FirstOrDefault(x => x.Id == author.Id));
 
             _authorRepositoryMock
-                .Setup(x=>x.GetById(request.Id))
+                .Setup(x => x.GetById(request.Id))
                 .ReturnsAsync(_authors.FirstOrDefault(x => x.Id == request.Id));
-
 
             // inject 
 
@@ -382,7 +374,7 @@ namespace BookStoreDK.Tests
             };
 
             _authorRepositoryMock
-          .Setup(x => x.Update(author))        
+          .Setup(x => x.Update(author))
           .ReturnsAsync(_authors.FirstOrDefault(x => x.Id == author.Id));
 
             // inject 
@@ -400,8 +392,8 @@ namespace BookStoreDK.Tests
 
             var resultValue = badRequestObjectResult!.Value as ErrorResponse;
             Assert.NotNull(resultValue);
-                    
-                       
+
+
             Assert.Equal(expectedErrorMessage, resultValue!.Error);
             Assert.Equal(3, _authors.Count());
         }
@@ -411,34 +403,266 @@ namespace BookStoreDK.Tests
         public async Task Author_Delete_Ok()
         {
             //setup
-            var authorId = 4;
+            var authorId = 3;
             var expectedAuthor = _authors.FirstOrDefault(x => x.Id == authorId);
-            var expectedMessage = "Id does not exist";
 
-            _authorRepositoryMock.Setup(x => x.GetById(authorId))
+            _authorRepositoryMock.Setup(x => x.Delete(It.IsAny<int>())).Callback(() =>
+            {
+                _authors.Remove(_authors.FirstOrDefault(x => x.Id == authorId)!);
+            })
                 .ReturnsAsync(expectedAuthor);
 
             //inject
             var controller = GetAuthorController();
 
             //act
-            var result = await controller.GetById(authorId);
+            var result = await controller.Delete(authorId);
             //Assert
+            var okObjectResult = result as OkObjectResult;
+
+            Assert.NotNull(okObjectResult);
+
+            var authorResult = okObjectResult!.Value as AuthorResponse;
+
+            Assert.NotNull(authorResult);
+            Assert.Equal(2, _authors.Count);
+
+            var author = authorResult!.Author;
+
+            Assert.NotNull(author);
+            Assert.Equal(expectedAuthor, author);
+        }
+
+        [Fact]
+        // TODO Make Method
+        public async Task Author_Delete_NotFound()
+        {
+            //setup
+            var authorId = 4;
+            var expectedAuthor = _authors.FirstOrDefault(x => x.Id == authorId);
+            var expectedMessage = "Id does not exist";
+
+            _authorRepositoryMock.Setup(x => x.Delete(It.IsAny<int>())).ReturnsAsync(expectedAuthor);
+
+            //inject
+            var controller = GetAuthorController();
+
+            //act
+            var result = await controller.Delete(authorId);
+            //Assert
+
             var notFoundObjectResult = result as NotFoundObjectResult;
 
             Assert.NotNull(notFoundObjectResult);
 
-            var authorResult = notFoundObjectResult.Value as AuthorResponse;
+            var authorResult = notFoundObjectResult!.Value as AuthorResponse;
 
             Assert.NotNull(authorResult);
-            Assert.Equal(expectedMessage, authorResult.Message);
+            Assert.Equal(expectedMessage, authorResult!.Message);
 
             var author = authorResult.Author;
 
             Assert.Null(author);
             Assert.Equal(expectedAuthor, author);
+
         }
 
+        [Fact]
+        public async Task Author_Delete_AuthorHasBooks_BadRequest()
+        {
+
+            var authorId = 3;
+            var expectedAuthor = _authors.FirstOrDefault(x => x.Id == authorId);
+            var booksCount = 1;
+            var expectedErrorMessage = "Cannot Delete Author With Books";
+
+            _authorRepositoryMock.Setup(x => x.Delete(It.IsAny<int>())).Callback(() =>
+            {
+                _authors.Remove(_authors.FirstOrDefault(x => x.Id == authorId)!);
+            })
+                .ReturnsAsync(expectedAuthor);
+
+            _bookRepositoryMock
+                .Setup(x => x.GetBooksCountByAuthorId(It.IsAny<int>()))
+                .ReturnsAsync(booksCount);
+
+            //inject
+            var controller = GetAuthorController();
+
+            //act
+            var result = await controller.Delete(authorId);
+            //Assert
+            var BadRequestObjectResult = result as BadRequestObjectResult;
+
+            Assert.NotNull(BadRequestObjectResult);
+
+            var authorResult = BadRequestObjectResult!.Value as ErrorResponse;
+
+            Assert.NotNull(authorResult);
+            Assert.Equal(3, _authors.Count);
+
+            var errorMessage = authorResult!.Error;
+
+            Assert.Equal(expectedErrorMessage, errorMessage);
+        }
+
+        [Fact]
+
+        public async Task Author_AddRange_Ok()
+        {
+            var authorsToAddRequest = new List<AddAuthorRequest>()
+            {
+                new AddAuthorRequest()
+                {
+                    Age = 14,
+                    Name = "Vanka",
+                    NickName = "Pesho",
+                    DateOfBirth = new DateTime(1999, 10, 14),
+                },
+                 new AddAuthorRequest()
+                {
+                    Age = 15,
+                    Name = "Vanyo",
+                    NickName = "Pesho",
+                    DateOfBirth = new DateTime(1999, 10, 14),
+                },
+            };
+
+            var authorsToAdd = new List<Author>()
+            {
+                new Author()
+                {
+
+                    Age = 14,
+                    Name = "Vanka",
+                    NickName = "Pesho",
+                    DateOfBirth = new DateTime(1999, 10, 14),
+                },
+                 new Author()
+                {
+                    Age = 15,
+                    Name = "Vanyo",
+                    NickName = "Pesho",
+                    DateOfBirth = new DateTime(1999, 10, 14),
+                },
+            };
+
+            var addMultipleAuthorsRequest = new AddMultipleAuthorsRequest()
+            {
+                AuthorRequests = authorsToAddRequest,
+                Reason = "None"
+            };
+
+
+
+            _authorRepositoryMock
+                .Setup(x => x.AddMultipleAuthors(It.IsAny<IEnumerable<Author>>()))
+                .Callback(() =>
+                {
+                    foreach (var author in authorsToAdd)
+                    {
+                        _authors.Add(author);
+                    }
+                })
+                .ReturnsAsync(() => true);
+
+
+            //inject
+            var controller = GetAuthorController();
+
+            //act
+            var result = await controller.AddAuthorRange(addMultipleAuthorsRequest);
+            //Assert
+            var okObjectResult = result as OkObjectResult;
+
+            Assert.NotNull(okObjectResult);
+
+            var authorsResult = okObjectResult!.Value as AuthorsCollectionResponse;
+
+            Assert.NotNull(authorsResult);
+            Assert.Equal(5, _authors.Count);
+
+            var authors = authorsResult!.Authors;
+
+            Assert.NotNull(authors);
+
+            Assert.Equal(authorsToAdd, authors);
+
+        }
+
+        [Fact]
+
+        public async Task Author_AddRange_BadRequest()
+        {
+            var authorsToAddRequest = new List<AddAuthorRequest>()
+            {
+                new AddAuthorRequest()
+                {
+                    Age = 14,
+                    Name = "Vanka",
+                    NickName = "Pesho",
+                    DateOfBirth = new DateTime(1999, 10, 14),
+                },
+                 new AddAuthorRequest()
+                {
+                    Age = 15,
+                    Name = "Vanyo",
+                    NickName = "Pesho",
+                    DateOfBirth = new DateTime(1999, 10, 14),
+                },
+            };
+
+            var authorsToAdd = new List<Author>()
+            {
+                new Author()
+                {
+
+                    Age = 14,
+                    Name = "Vanka",
+                    NickName = "Pesho",
+                    DateOfBirth = new DateTime(1999, 10, 14),
+                },
+                 new Author()
+                {
+                    Age = 15,
+                    Name = "Vanyo",
+                    NickName = "Pesho",
+                    DateOfBirth = new DateTime(1999, 10, 14),
+                },
+            };
+
+            var addMultipleAuthorsRequest = new AddMultipleAuthorsRequest()
+            {
+                AuthorRequests = authorsToAddRequest,
+                Reason = "None"
+            };
+
+            var expectedErrorMessage = "Failed to add authors";
+
+            _authorRepositoryMock
+                .Setup(x => x.AddMultipleAuthors(It.IsAny<IEnumerable<Author>>()))
+                                .ReturnsAsync(false);
+
+            //inject
+            var controller = GetAuthorController();
+
+            //act
+            var result = await controller.AddAuthorRange(addMultipleAuthorsRequest);
+            //Assert
+            var badRequestObjectResult = result as BadRequestObjectResult;
+
+            Assert.NotNull(badRequestObjectResult);
+
+            var authorsResult = badRequestObjectResult!.Value as ErrorResponse;
+
+            Assert.NotNull(authorsResult);
+            Assert.Equal(3, _authors.Count);
+
+            var errorMessage = authorsResult!.Error;
+
+            Assert.Equal(expectedErrorMessage, errorMessage);
+
+        }
 
         private AuthorController GetAuthorController()
         {

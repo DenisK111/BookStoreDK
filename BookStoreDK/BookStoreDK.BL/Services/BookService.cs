@@ -80,14 +80,14 @@ namespace BookStoreDK.BL.Services
 
         public async Task<BookResponse> Update(UpdateBookRequest model)
         {
-            var modelToUpdate = GetById(model.Id);
+            var modelToUpdate = await _repo.GetById(model.Id);
 
             if (modelToUpdate == null)
             {
                 return new BookResponse()
                 {
                     HttpStatusCode = HttpStatusCode.BadRequest,
-                    Message = "Author does not exist"
+                    Message = "Book does not exist"
                 };
             }
             var bookObject = _mapper.Map<Book>(model);
