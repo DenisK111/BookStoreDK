@@ -1,4 +1,4 @@
-﻿namespace BookStoreDK.Models
+﻿namespace BookStoreDK.Models.HealthCheckModels
 {
     public class IndividualHealthCheckResponse
     {

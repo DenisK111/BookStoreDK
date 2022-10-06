@@ -1,10 +1,6 @@
-﻿using System.Net;
-using System.Reflection;
-using BookStoreDK.BL.Interfaces;
+﻿using BookStoreDK.BL.Interfaces;
 using BookStoreDK.Extensions;
-using BookStoreDK.Models.Models;
 using BookStoreDK.Models.Requests;
-using BookStoreDK.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStoreDK.Controllers

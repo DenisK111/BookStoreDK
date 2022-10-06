@@ -5,6 +5,7 @@ using BookStoreDK.DL.Intefraces;
 using BookStoreDK.Models.Models;
 using BookStoreDK.Models.Requests;
 using BookStoreDK.Models.Responses;
+using Microsoft.Extensions.Logging;
 
 namespace BookStoreDK.BL.Services
 {
@@ -13,12 +14,14 @@ namespace BookStoreDK.BL.Services
         private readonly IAuthorRepository _repo;
         private readonly IMapper _mapper;
         private readonly IBookRepository _booksRepo;
+        private readonly ILogger<AuthorService> _logger;
 
-        public AuthorService(IAuthorRepository repo, IMapper mapper, IBookRepository booksRepo)
+        public AuthorService(IAuthorRepository repo, IMapper mapper, IBookRepository booksRepo, ILogger<AuthorService> logger)
         {
             _repo = repo;
             _mapper = mapper;
             _booksRepo = booksRepo;
+            _logger = logger;
         }
 
         public async Task<AuthorResponse> Add(AddAuthorRequest author)
@@ -105,7 +108,7 @@ namespace BookStoreDK.BL.Services
 
         public async Task<AuthorResponse> Update(UpdateAuthorRequest model)
         {
-            var modelToUpdate = await GetById(model.Id);
+            var modelToUpdate = await _repo.GetById(model.Id);
 
             if (modelToUpdate == null)
             {

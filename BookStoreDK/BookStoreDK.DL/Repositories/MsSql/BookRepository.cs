@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿using System.Data.SqlClient;
 using BookStoreDK.DL.Intefraces;
 using BookStoreDK.Models.Models;
 using Dapper;
