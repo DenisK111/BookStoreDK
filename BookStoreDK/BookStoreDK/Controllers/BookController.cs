@@ -1,6 +1,10 @@
-﻿using BookStoreDK.BL.Interfaces;
+﻿using System.Reflection;
+using BookStoreDK.BL.Interfaces;
 using BookStoreDK.Extensions;
+using BookStoreDK.Models.MediatR.Commands;
+using BookStoreDK.Models.MediatR.Commands.BookCommands;
 using BookStoreDK.Models.Requests;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStoreDK.Controllers
@@ -9,30 +13,27 @@ namespace BookStoreDK.Controllers
     [Route("[controller]")]
     public class BookController : ControllerBase
     {
-        private readonly ILogger<BookController> _logger;
-        private readonly IBookService _bookService;
+        private readonly IMediator _mediator;
 
-        public BookController(ILogger<BookController> logger, IBookService bookService)
+        public BookController(IMediator mediator)
         {
-            _logger = logger;
-            _bookService = bookService;
+            _mediator = mediator;
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return this.ProduceResponse(await _bookService.GetAll());
+            return this.ProduceResponse(await _mediator.Send(new GetAllBooksCommand()));
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet(nameof(GetById))]
-        public async Task<IActionResult> GetById(int Id)
+        public async Task<IActionResult> GetById(int id)
         {
-            return this.ProduceResponse(await _bookService.GetById(Id));
-                       
+            return this.ProduceResponse(await _mediator.Send(new GetBookByIdCommand(id)));
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -40,7 +41,7 @@ namespace BookStoreDK.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] AddBookRequest model)
         {
-            return this.ProduceResponse(await _bookService.Add(model));
+            return this.ProduceResponse(await _mediator.Send(new AddBookCommand(model)));
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -48,7 +49,7 @@ namespace BookStoreDK.Controllers
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] UpdateBookRequest model)
         {
-            return this.ProduceResponse(await _bookService.Update(model));
+            return this.ProduceResponse(await _mediator.Send(new UpdateBookCommand(model)));
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -57,8 +58,7 @@ namespace BookStoreDK.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
-            return this.ProduceResponse(await _bookService.Delete(id));
-
+            return this.ProduceResponse(await _mediator.Send(new DeleteBookCommand(id)));
         }
     }
 }

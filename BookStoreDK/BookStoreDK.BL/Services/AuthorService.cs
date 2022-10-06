@@ -26,24 +26,24 @@ namespace BookStoreDK.BL.Services
 
         public async Task<AuthorResponse> Add(AddAuthorRequest author)
         {
-            {
-                var auth = await _repo.GetAuthorByName(author.Name);
 
-                if (auth != null)
-                    return new AuthorResponse()
-                    {
-                        HttpStatusCode = HttpStatusCode.BadRequest,
-                        Message = "Author already exists"
-                    };
-                var authorObject = _mapper.Map<Author>(author);
-                var result = await _repo.Add(authorObject);
+            var auth = await _repo.GetAuthorByName(author.Name);
 
+            if (auth != null)
                 return new AuthorResponse()
                 {
-                    HttpStatusCode = HttpStatusCode.OK,
-                    Author = result
+                    HttpStatusCode = HttpStatusCode.BadRequest,
+                    Message = "Author already exists"
                 };
-            }
+            var authorObject = _mapper.Map<Author>(author);
+            var result = await _repo.Add(authorObject);
+
+            return new AuthorResponse()
+            {
+                HttpStatusCode = HttpStatusCode.OK,
+                Model = result
+            };
+
         }
 
         public async Task<AuthorsCollectionResponse> AddRange(AddMultipleAuthorsRequest model)
@@ -63,13 +63,13 @@ namespace BookStoreDK.BL.Services
             return new AuthorsCollectionResponse()
             {
                 HttpStatusCode = HttpStatusCode.OK,
-                Authors = authorCollection,
+                Model = authorCollection,
             };
         }
 
         public async Task<AuthorResponse> Delete(int modelId)
         {
-            
+
             var booksCount = await _booksRepo.GetBooksCountByAuthorId(modelId);
             if (booksCount > 0)
             {
@@ -92,7 +92,7 @@ namespace BookStoreDK.BL.Services
 
             return new AuthorsCollectionResponse()
             {
-                Authors = result,
+                Model = result,
                 HttpStatusCode = HttpStatusCode.OK
             };
 
@@ -102,8 +102,8 @@ namespace BookStoreDK.BL.Services
         public async Task<AuthorResponse> GetById(int id)
         {
             var result = await _repo.GetById(id);
-            return CheckForNullAndReturnResponse(result,"Id does not exist");
-                      
+            return CheckForNullAndReturnResponse(result, "Id does not exist");
+
         }
 
         public async Task<AuthorResponse> Update(UpdateAuthorRequest model)
@@ -124,12 +124,12 @@ namespace BookStoreDK.BL.Services
             return new AuthorResponse()
             {
                 HttpStatusCode = HttpStatusCode.OK,
-                Author = result,
+                Model = result,
             };
 
         }
 
-        private AuthorResponse CheckForNullAndReturnResponse(Author? result,string errorMessage = "")
+        private AuthorResponse CheckForNullAndReturnResponse(Author? result, string errorMessage = "")
         {
             if (result == null)
             {
@@ -142,7 +142,7 @@ namespace BookStoreDK.BL.Services
 
             return new AuthorResponse()
             {
-                Author = result,
+                Model = result,
                 HttpStatusCode = HttpStatusCode.OK,
             };
         }

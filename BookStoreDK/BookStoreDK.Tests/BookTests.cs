@@ -6,6 +6,7 @@ using BookStoreDK.DL.Intefraces;
 using BookStoreDK.Models.Models;
 using BookStoreDK.Models.Requests;
 using BookStoreDK.Models.Responses;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -98,10 +99,10 @@ namespace BookStoreDK.Tests
             var response = okObjectResult!.Value as BookCollectionResponse;
 
             Assert.NotNull(response);
-            var books = response!.Books;
+            var books = response!.Model;
             Assert.NotNull(books);
             Assert.NotEmpty(books);
-            Assert.Equal(expectedCount, books.Count());
+            Assert.Equal(expectedCount, books!.Count());
 
         }
 
@@ -130,7 +131,7 @@ namespace BookStoreDK.Tests
 
             Assert.NotNull(bookResult);
 
-            var book = bookResult!.Book;
+            var book = bookResult!.Model;
 
             Assert.NotNull(book);
             Assert.Equal(bookId, book!.Id);
@@ -163,7 +164,7 @@ namespace BookStoreDK.Tests
             Assert.NotNull(bookResult);
 
             var message = bookResult!.Message;
-            var book = bookResult!.Book;
+            var book = bookResult!.Model;
 
             Assert.Null(book);
             Assert.Equal(expectedBook, book);
@@ -218,7 +219,7 @@ namespace BookStoreDK.Tests
             var resultValue = okObjectResult!.Value as BookResponse;
             Assert.NotNull(resultValue);
 
-            var resultBook = resultValue!.Book;
+            var resultBook = resultValue!.Model;
             Assert.NotNull(resultBook);
 
             Assert.Equal(bookToAdd, resultBook);
@@ -377,7 +378,7 @@ namespace BookStoreDK.Tests
             var resultValue = okObjectResult!.Value as BookResponse;
             Assert.NotNull(resultValue);
 
-            var resultBook = resultValue!.Book;
+            var resultBook = resultValue!.Model;
             Assert.NotNull(resultBook);
 
             Assert.Equal(updatedBook, resultBook);
@@ -458,7 +459,7 @@ namespace BookStoreDK.Tests
 
             Assert.NotNull(bookResult);
 
-            var book = bookResult!.Book;
+            var book = bookResult!.Model;
 
             Assert.NotNull(book);
             Assert.Equal(bookId, book!.Id);
@@ -489,7 +490,7 @@ namespace BookStoreDK.Tests
 
             Assert.NotNull(bookResult);
 
-            var book = bookResult!.Book;
+            var book = bookResult!.Model;
             var errorMessage = bookResult!.Message;
             Assert.Null(book);
             Assert.Equal(expectedErrorMessage, errorMessage);
@@ -499,7 +500,7 @@ namespace BookStoreDK.Tests
         private BookController GetBookController()
         {
             var service = new BookService(_bookRepositoryMock.Object, _mapper, _authorRepositoryMock.Object);
-            var controller = new BookController(_loggerMock.Object, service);
+           var controller = new BookController(null!);
             return controller;
         }
     }

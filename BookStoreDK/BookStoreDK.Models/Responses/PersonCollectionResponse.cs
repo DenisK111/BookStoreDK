@@ -2,8 +2,6 @@
 
 namespace BookStoreDK.Models.Responses
 {
-    public class PersonCollectionResponse : BaseResponse
-    {
-        public IEnumerable<Person> People { get; init; }
-    }
+    public class PersonCollectionResponse : BaseResponse<IEnumerable<Person>>
+    {}
 }

@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStoreDK.DL", "BookStore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStoreDK.BL", "BookStoreDK.BL\BookStoreDK.BL.csproj", "{EAC3AA67-0575-4723-95A5-B0276371ED98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookStoreDK.Tests", "BookStoreDK.Tests\BookStoreDK.Tests.csproj", "{D06B6C5C-9F15-4716-9E22-AF782E273715}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStoreDK.Tests", "BookStoreDK.Tests\BookStoreDK.Tests.csproj", "{D06B6C5C-9F15-4716-9E22-AF782E273715}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

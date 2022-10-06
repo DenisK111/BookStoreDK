@@ -19,11 +19,7 @@ namespace BookStoreDK.Extensions
 
         public static IServiceCollection RegisterServices(this IServiceCollection services)
         {
-            services
-                .AddSingleton<IPersonService, PersonService>()
-                .AddSingleton<IAuthorService, AuthorService>()
-                .AddSingleton<IBookService, BookService>();
-
+           
             return services;
         }
     }
