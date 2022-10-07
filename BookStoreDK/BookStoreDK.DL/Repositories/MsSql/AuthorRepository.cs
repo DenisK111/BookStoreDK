@@ -18,11 +18,11 @@ namespace BookStoreDK.DL.Repositories.MsSql
             _configuration = configuration;
         }
 
-        public async Task<Author>? Add(Author model)
+        public async Task<Author?> Add(Author model)
         {
             var query = @"INSERT INTO AUTHORS ([Name],Age,DateOfBirth,NickName)
                             VALUES (@Name,@Age,@DateOfBirth,@NickName)
-                             SELECT CAST(SCOPE_IDENTITY() as int) WITH(NOLOCK)";
+                             SELECT CAST(SCOPE_IDENTITY() as int)";
             try
             {
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
@@ -38,7 +38,7 @@ namespace BookStoreDK.DL.Repositories.MsSql
                 _logger.LogError($"Error in {nameof(Add)}:{e.Message}", e);
             }
 
-            return null;
+            return null!;
         }
 
         public async Task<bool> AddMultipleAuthors(IEnumerable<Author> authors)

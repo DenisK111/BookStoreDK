@@ -6,7 +6,7 @@ namespace BookStoreDK.Extensions
 {
     public static class HttpResponseExtensions
     {
-        public static IActionResult ProduceResponse(this ControllerBase controller, BaseResponse response)
+        public static IActionResult ProduceResponse<T>(this ControllerBase controller, BaseResponse<T> response)
         {
             switch (response.HttpStatusCode)
             {

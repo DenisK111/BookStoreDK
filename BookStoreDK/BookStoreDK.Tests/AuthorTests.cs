@@ -6,6 +6,7 @@ using BookStoreDK.DL.Intefraces;
 using BookStoreDK.Models.Models;
 using BookStoreDK.Models.Requests;
 using BookStoreDK.Models.Responses;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -86,7 +87,8 @@ namespace BookStoreDK.Tests
             //Inject
 
             var service = new AuthorService(_authorRepositoryMock.Object, _mapper, _bookRepositoryMock.Object, _loggerMock.Object);
-            var controller = new AuthorController(_loggerAuthorControllerMock.Object, service);
+            var mock = new Mock<IMediator>();
+            var controller = new AuthorController(mock.Object);
 
             //Act
 
@@ -98,13 +100,13 @@ namespace BookStoreDK.Tests
 
             Assert.NotNull(okObjectResult);
 
-            var response = okObjectResult.Value as AuthorsCollectionResponse;
+            var response = okObjectResult!.Value as AuthorsCollectionResponse;
 
             Assert.NotNull(response);
-            var authors = response.Authors;
+            var authors = response!.Model;
             Assert.NotNull(authors);
             Assert.NotEmpty(authors);
-            Assert.Equal(expectedCount, authors.Count());
+            Assert.Equal(expectedCount, authors!.Count());
 
         }
 
@@ -129,14 +131,14 @@ namespace BookStoreDK.Tests
 
             Assert.NotNull(okObjectResult);
 
-            var authorResult = okObjectResult.Value as AuthorResponse;
+            var authorResult = okObjectResult!.Value as AuthorResponse;
 
             Assert.NotNull(authorResult);
 
-            var author = authorResult.Author;
+            var author = authorResult!.Model;
 
             Assert.NotNull(author);
-            Assert.Equal(authorId, author.Id);
+            Assert.Equal(authorId, author!.Id);
 
         }
 
@@ -162,12 +164,12 @@ namespace BookStoreDK.Tests
 
             Assert.NotNull(notFoundObjectResult);
 
-            var authorResult = notFoundObjectResult.Value as AuthorResponse;
+            var authorResult = notFoundObjectResult!.Value as AuthorResponse;
 
             Assert.NotNull(authorResult);
-            Assert.Equal(expectedMessage, authorResult.Message);
+            Assert.Equal(expectedMessage, authorResult!.Message);
 
-            var author = authorResult.Author;
+            var author = authorResult.Model;
 
             Assert.Null(author);
             Assert.Equal(expectedAuthor, author);
@@ -221,7 +223,7 @@ namespace BookStoreDK.Tests
             var resultValue = okObjectResult!.Value as AuthorResponse;
             Assert.NotNull(resultValue);
 
-            var resultAuthor = resultValue!.Author;
+            var resultAuthor = resultValue!.Model;
             Assert.NotNull(resultAuthor);
 
             Assert.Equal(author, resultAuthor);
@@ -338,10 +340,10 @@ namespace BookStoreDK.Tests
             var okObjectResult = result as OkObjectResult;
             Assert.NotNull(okObjectResult);
 
-            var resultValue = okObjectResult.Value as AuthorResponse;
+            var resultValue = okObjectResult!.Value as AuthorResponse;
             Assert.NotNull(resultValue);
 
-            var resultAuthor = resultValue.Author;
+            var resultAuthor = resultValue!.Model;
 
             Assert.NotNull(resultAuthor);
             Assert.Equal(author, resultAuthor);
@@ -427,7 +429,7 @@ namespace BookStoreDK.Tests
             Assert.NotNull(authorResult);
             Assert.Equal(2, _authors.Count);
 
-            var author = authorResult!.Author;
+            var author = authorResult!.Model;
 
             Assert.NotNull(author);
             Assert.Equal(expectedAuthor, author);
@@ -460,7 +462,7 @@ namespace BookStoreDK.Tests
             Assert.NotNull(authorResult);
             Assert.Equal(expectedMessage, authorResult!.Message);
 
-            var author = authorResult.Author;
+            var author = authorResult.Model;
 
             Assert.Null(author);
             Assert.Equal(expectedAuthor, author);
@@ -582,7 +584,7 @@ namespace BookStoreDK.Tests
             Assert.NotNull(authorsResult);
             Assert.Equal(5, _authors.Count);
 
-            var authors = authorsResult!.Authors;
+            var authors = authorsResult!.Model;
 
             Assert.NotNull(authors);
 
@@ -667,7 +669,7 @@ namespace BookStoreDK.Tests
         private AuthorController GetAuthorController()
         {
             var service = new AuthorService(_authorRepositoryMock.Object, _mapper, _bookRepositoryMock.Object, _loggerMock.Object);
-            var controller = new AuthorController(_loggerAuthorControllerMock.Object, service);
+            var controller = new AuthorController(null!);
             return controller;
         }
     }

@@ -2,8 +2,7 @@
 
 namespace BookStoreDK.Models.Responses
 {
-    public class AuthorResponse : BaseResponse
+    public class AuthorResponse : BaseResponse<Author>
     {
-        public Author? Author { get; init; }
     }
 }

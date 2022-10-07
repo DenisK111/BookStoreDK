@@ -49,7 +49,7 @@ namespace BookStoreDK.BL.Services
             return new BookResponse()
             {
                 HttpStatusCode = HttpStatusCode.OK,
-                Book = result
+                Model = result
             };
         }
 
@@ -67,7 +67,7 @@ namespace BookStoreDK.BL.Services
 
             return new BookCollectionResponse()
             {
-                Books = result,
+                Model = result,
                 HttpStatusCode = HttpStatusCode.OK
             };
         }
@@ -96,7 +96,7 @@ namespace BookStoreDK.BL.Services
             return new BookResponse()
             {
                 HttpStatusCode = HttpStatusCode.OK,
-                Book = result,
+                Model = result,
             };
         }
 
@@ -114,7 +114,7 @@ namespace BookStoreDK.BL.Services
 
             return new BookResponse()
             {
-                Book = result,
+                Model = result,
                 HttpStatusCode = HttpStatusCode.OK,
             };
         }

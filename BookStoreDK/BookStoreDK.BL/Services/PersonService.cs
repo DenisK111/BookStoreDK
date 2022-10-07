@@ -1,10 +1,13 @@
 ﻿using System.Net;
 using AutoMapper;
+using BookStoreDK.BL.Helpers;
 using BookStoreDK.BL.Interfaces;
 using BookStoreDK.DL.Intefraces;
 using BookStoreDK.Models.Models;
 using BookStoreDK.Models.Requests;
 using BookStoreDK.Models.Responses;
+
+
 
 namespace BookStoreDK.BL.Services
 {
@@ -36,7 +39,7 @@ namespace BookStoreDK.BL.Services
                 return new PersonResponse()
                 {
                     HttpStatusCode = HttpStatusCode.OK,
-                    Person = result,
+                    Model = result,
 
                 };
             }
@@ -45,7 +48,7 @@ namespace BookStoreDK.BL.Services
         public async Task<PersonResponse> Delete(int modelId)
         {
             var result = await _repo.Delete(modelId);
-            return CheckForNullAndReturnResponse(result, "Id does not exist");
+            return NullChecker.CheckForNullObjectAndReturnResponse<Person,PersonResponse>(result, "Id does not exist");
         }
 
         public async Task<PersonCollectionResponse> GetAll()
@@ -54,7 +57,7 @@ namespace BookStoreDK.BL.Services
 
             return new PersonCollectionResponse()
             {
-                People = result,
+                Model = result,
                 HttpStatusCode = HttpStatusCode.OK
             };
         }
@@ -62,7 +65,7 @@ namespace BookStoreDK.BL.Services
         public async Task<PersonResponse> GetById(int id)
         {
             var result = await _repo.GetById(id);
-            return CheckForNullAndReturnResponse(result, "Id does not exist");
+            return NullChecker.CheckForNullObjectAndReturnResponse<Person, PersonResponse>(result, "Id does not exist");
         }
 
         public async Task<PersonResponse> Update(UpdatePersonRequest model)
@@ -83,27 +86,10 @@ namespace BookStoreDK.BL.Services
             return new PersonResponse()
             {
                 HttpStatusCode = HttpStatusCode.OK,
-                Person = result,
+                Model = result,
             };
 
         }
-
-        private PersonResponse CheckForNullAndReturnResponse(Person? result, string errorMessage = "")
-        {
-            if (result == null)
-            {
-                return new PersonResponse()
-                {
-                    HttpStatusCode = HttpStatusCode.NotFound,
-                    Message = errorMessage,
-                };
-            }
-
-            return new PersonResponse()
-            {
-                Person = result,
-                HttpStatusCode = HttpStatusCode.OK,
-            };
-        }
+        
     }
 }
