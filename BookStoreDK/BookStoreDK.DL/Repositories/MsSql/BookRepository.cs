@@ -9,7 +9,6 @@ namespace BookStoreDK.DL.Repositories.MsSql
 {
     public class BookRepository : IBookRepository
     {
-
         private readonly ILogger<BookRepository> _logger;
         private readonly IConfiguration _configuration;
 

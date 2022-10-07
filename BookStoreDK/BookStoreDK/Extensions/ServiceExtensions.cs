@@ -1,4 +1,6 @@
-﻿using BookStoreDK.DL.Intefraces;
+﻿using BookStoreDK.BL.Interfaces;
+using BookStoreDK.BL.Services;
+using BookStoreDK.DL.Intefraces;
 using BookStoreDK.DL.Repositories.MsSql;
 
 namespace BookStoreDK.Extensions
@@ -10,13 +12,18 @@ namespace BookStoreDK.Extensions
             services
                .AddSingleton<IPersonRepository, PersonRepository>()
                .AddSingleton<IAuthorRepository, AuthorRepository>()
-               .AddSingleton<IBookRepository, BookRepository>();
-
+               .AddSingleton<IBookRepository, BookRepository>()
+               .AddSingleton<IUserInfoStore, UserInfoStore>()
+               .AddSingleton<IEmployeeRepository, EmployeeRepository>();
+               
             return services;
         }
 
         public static IServiceCollection RegisterServices(this IServiceCollection services)
         {
+            services
+                .AddSingleton<IEmployeeService, EmployeeService>()
+                .AddSingleton<IUserInfoService, EmployeeService>();
            
             return services;
         }

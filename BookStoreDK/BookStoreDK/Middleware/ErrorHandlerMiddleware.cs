@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace BookStoreDK.Middleware

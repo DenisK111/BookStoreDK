@@ -38,6 +38,7 @@ namespace BookStoreDK.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] AddAuthorRequest request)
         {
+            
             return this.ProduceResponse(await _mediator.Send(new AddAuthorCommand(request)));
         }
 
