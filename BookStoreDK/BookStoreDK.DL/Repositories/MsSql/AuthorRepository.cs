@@ -111,7 +111,7 @@ namespace BookStoreDK.DL.Repositories.MsSql
 
         public async Task<Author?> GetAuthorByName(string name)
         {
-            var query = @"SELECT * FROM Authors WITH(NOLOCK)
+            var query = @"SELECT * FROM Authors WITH (NOLOCK)
                           WHERE [Name] = @Name";
 
             try

@@ -1,6 +1,7 @@
 using BookStoreDK.BL.CommandHandlers.BookCommandHandlers;
 using BookStoreDK.Extensions;
 using BookStoreDK.HealthChecks;
+using BookStoreDK.Middleware;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
@@ -43,6 +44,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ErrorHandlerMiddleware>();
+app.UseMiddleware<LoggingMiddleware>();
 
 app.UseHttpsRedirection();
 

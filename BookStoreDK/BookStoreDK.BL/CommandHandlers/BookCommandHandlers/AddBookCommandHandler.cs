@@ -1,7 +1,5 @@
 ﻿using System.Net;
-using System.Reflection;
 using AutoMapper;
-using BookStoreDK.BL.Interfaces;
 using BookStoreDK.DL.Intefraces;
 using BookStoreDK.Models.MediatR.Commands.BookCommands;
 using BookStoreDK.Models.Models;
