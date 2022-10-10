@@ -8,31 +8,40 @@ using Microsoft.Extensions.Logging;
 
 namespace BookStoreDK.DL.Repositories.MsSql
 {
-    public class UserInfoStore : IUserInfoStore
+    public class UserInfoStore : IUserInfoStore,IUserRoleStore<UserInfo>
     {
         private readonly ILogger<UserInfoStore> _logger;
         private readonly IConfiguration _configuration;
+        private readonly IPasswordHasher<UserInfo> _passwordHasher;
 
-        public UserInfoStore(ILogger<UserInfoStore> logger, IConfiguration configuration)
+        public UserInfoStore(ILogger<UserInfoStore> logger, IConfiguration configuration, IPasswordHasher<UserInfo> passwordHasher)
         {
             _logger = logger;
             _configuration = configuration;
+            _passwordHasher = passwordHasher;
+        }
+
+        public Task AddToRoleAsync(UserInfo user, string roleName, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<IdentityResult> CreateAsync(UserInfo user, CancellationToken cancellationToken)
         {
             var query = @"INSERT INTO UserInfo 
-                        ([UserId]
+                        ([DisplayName]
                        ,[UserName]
                        ,[Email]
                        ,[Password]
-                       ,[CreatedDate]
+                       ,[CreatedDate])
                        VALUES 
-                        (@UserId
+                        (@DisplayName
                        ,@UserName
                        ,@Email
                        ,@Password
                        ,@CreatedDate)";
+
+            user.Password = _passwordHasher.HashPassword(user, user.Password);
             try
             {
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
@@ -60,7 +69,7 @@ namespace BookStoreDK.DL.Repositories.MsSql
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+
         }
 
         public Task<UserInfo> FindByIdAsync(string userId, CancellationToken cancellationToken)
@@ -77,7 +86,7 @@ namespace BookStoreDK.DL.Repositories.MsSql
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     await conn.OpenAsync();
-                    var result = await conn.QueryFirstOrDefaultAsync<UserInfo>(query, normalizedUserName);
+                    var result = await conn.QueryFirstOrDefaultAsync<UserInfo>(query, new { UserName = normalizedUserName });
                     return result;
                 }
             }
@@ -96,12 +105,70 @@ namespace BookStoreDK.DL.Repositories.MsSql
 
         public async Task<string> GetPasswordHashAsync(UserInfo user, CancellationToken cancellationToken)
         {
-            return user.Password;
+            var query = @"SELECT Password FROM UserInfo WITH (NOLOCK)
+                          WHERE UserId = @UserId";
+
+            try
+            {
+                await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+                {
+                    await conn.OpenAsync(cancellationToken);
+                   var result =  await conn.QueryFirstOrDefaultAsync<string>(query, new { UserId = user.UserId });
+                    return result;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error in {nameof(GetUserInfoAsync)}:{e.Message}", e);
+            }
+
+            return null;
         }
 
-        public Task<string> GetUserIdAsync(UserInfo user, CancellationToken cancellationToken)
+        public async Task<IList<string>> GetRolesAsync(UserInfo user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var query = @"SELECT r.RoleName as Name FROM UserRoles ur WITH (NOLOCK)
+                        JOIN Roles as r WITH (NOLOCK) on ur.RoleId = r.Id
+                        WHERE ur.UserId = @userId";
+            await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                try
+                {
+                    await conn.OpenAsync(cancellationToken);
+
+                    var result = await conn.QueryAsync<string>(query, new { userId = user.UserId });
+
+                    return result.ToList();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"Error in {nameof(UserInfoStore.GetRolesAsync)}: {e.Message}");
+                    return null;
+                }
+
+            }
+        }
+
+        public async Task<string> GetUserIdAsync(UserInfo user, CancellationToken cancellationToken)
+        {
+            var query = @"SELECT UserName FROM UserInfo WITH (NOLOCK)
+                           WHERE UserName = @UserName";
+
+            try
+            {
+                await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+                {
+                    await conn.OpenAsync();
+                    var result = await conn.QueryFirstOrDefaultAsync<string>(query, new { UserName = user.UserName });
+                    return result;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error in {nameof(GetUserInfoAsync)}:{e.Message}", e);
+            }
+
+            return null;
         }
 
         public async Task<UserInfo?> GetUserInfoAsync(string email, string password)
@@ -130,14 +197,29 @@ namespace BookStoreDK.DL.Repositories.MsSql
             return Task.FromResult(user.UserName);
         }
 
-        public Task<bool> HasPasswordAsync(UserInfo user, CancellationToken cancellationToken)
+        public Task<IList<UserInfo>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task SetNormalizedUserNameAsync(UserInfo user, string normalizedName, CancellationToken cancellationToken)
+        public async Task<bool> HasPasswordAsync(UserInfo user, CancellationToken cancellationToken)
+        {
+            return !string.IsNullOrEmpty(await GetPasswordHashAsync(user, cancellationToken));
+        }
+
+        public Task<bool> IsInRoleAsync(UserInfo user, string roleName, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
+        }
+
+        public Task RemoveFromRoleAsync(UserInfo user, string roleName, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task SetNormalizedUserNameAsync(UserInfo user, string normalizedName, CancellationToken cancellationToken)
+        {
+
         }
 
         public async Task SetPasswordHashAsync(UserInfo user, string passwordHash, CancellationToken cancellationToken)
@@ -150,8 +232,8 @@ namespace BookStoreDK.DL.Repositories.MsSql
             {
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
-                    await conn.OpenAsync();
-                   await conn.ExecuteAsync(query, new { Password = passwordHash, UserId = user.UserId });
+                    await conn.OpenAsync(cancellationToken);
+                    await conn.ExecuteAsync(query, new { Password = passwordHash, UserId = user.UserId });
                 }
             }
             catch (Exception e)
@@ -159,7 +241,7 @@ namespace BookStoreDK.DL.Repositories.MsSql
                 _logger.LogError($"Error in {nameof(GetUserInfoAsync)}:{e.Message}", e);
             }
 
-           
+
         }
 
         public Task SetUserNameAsync(UserInfo user, string userName, CancellationToken cancellationToken)

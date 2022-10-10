@@ -1,8 +1,10 @@
 using System.Text;
 using BookStoreDK.BL.CommandHandlers.BookCommandHandlers;
+using BookStoreDK.DL.Repositories.MsSql;
 using BookStoreDK.Extensions;
 using BookStoreDK.HealthChecks;
 using BookStoreDK.Middleware;
+using BookStoreDK.Models.Models.Users;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
@@ -77,7 +79,17 @@ builder.Services.AddHealthChecks()
     .AddCheck<CustomHealthCheck>("Customer Health Check")
     .AddUrlGroup(new Uri("https://google.bg"), name: "Google Service");
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("View", policy => policy.RequireClaim("View"));
+    options.AddPolicy("Admin", policy => policy.RequireClaim("Admin"));
+});
+
 builder.Services.AddMediatR(typeof(GetAllBooksCommandHandler).Assembly);
+
+builder.Services.AddIdentity<UserInfo, UserRole>()
+    .AddUserStore<UserInfoStore>()
+    .AddRoleStore<UserRoleStore>();
 
 var app = builder.Build();
 

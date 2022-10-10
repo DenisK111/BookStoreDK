@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BookStoreDK.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "Bearer",Policy = "View")]
     [ApiController]
     [Route("[controller]")]
     public class EmployeeController : ControllerBase

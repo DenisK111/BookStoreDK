@@ -7,12 +7,12 @@ namespace BookStoreDK.BL.Services
     public class EmployeeService : IEmployeeService,IUserInfoService
     {
         private readonly IEmployeeRepository _employeeRepository;
-        private readonly IUserInfoStore _userInfoRepository;
+        private readonly IUserInfoStore _userInfoStore;
 
-        public EmployeeService(IEmployeeRepository employeeRepository, IUserInfoStore userInfoRepository)
+        public EmployeeService(IEmployeeRepository employeeRepository, IUserInfoStore userInfoStore)
         {
             _employeeRepository = employeeRepository;
-            _userInfoRepository = userInfoRepository;
+            _userInfoStore = userInfoStore;
         }
 
         public async Task AddEmployee(Employee employee)
@@ -42,7 +42,7 @@ namespace BookStoreDK.BL.Services
 
         public async Task<UserInfo?> GetUserInfoAsync(string email, string password)
         {
-            return await _userInfoRepository.GetUserInfoAsync(email,password);
+            return await _userInfoStore.GetUserInfoAsync(email,password);
         }
 
         public async Task UpdateEmployee(Employee employee)
