@@ -12,13 +12,19 @@ namespace BookStoreDK.Extensions
             services
                .AddSingleton<IPersonRepository, PersonRepository>()
                .AddSingleton<IAuthorRepository, AuthorRepository>()
-               .AddSingleton<IBookRepository, BookRepository>();
-
+               .AddSingleton<IBookRepository, BookRepository>()
+               .AddScoped<IUserInfoStore, UserInfoStore>()
+               .AddSingleton<IEmployeeRepository, EmployeeRepository>();
+               
             return services;
         }
 
         public static IServiceCollection RegisterServices(this IServiceCollection services)
         {
+            services
+                .AddScoped<IEmployeeService, EmployeeService>()
+                .AddScoped<IUserInfoService, EmployeeService>()
+                .AddTransient<IIDentityService,IdentityService>();
            
             return services;
         }

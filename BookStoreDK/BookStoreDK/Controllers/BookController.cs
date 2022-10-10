@@ -1,10 +1,8 @@
-﻿using System.Reflection;
-using BookStoreDK.BL.Interfaces;
-using BookStoreDK.Extensions;
-using BookStoreDK.Models.MediatR.Commands;
+﻿using BookStoreDK.Extensions;
 using BookStoreDK.Models.MediatR.Commands.BookCommands;
 using BookStoreDK.Models.Requests;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStoreDK.Controllers
@@ -20,6 +18,7 @@ namespace BookStoreDK.Controllers
             _mediator = mediator;
         }
 
+        [Authorize(AuthenticationSchemes ="Bearer", Roles="Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
         public async Task<IActionResult> Get()

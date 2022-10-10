@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net;
 using AutoMapper;
-using BookStoreDK.BL.Interfaces;
 using BookStoreDK.DL.Intefraces;
 using BookStoreDK.Models.MediatR.Commands.BookCommands;
 using BookStoreDK.Models.Models;

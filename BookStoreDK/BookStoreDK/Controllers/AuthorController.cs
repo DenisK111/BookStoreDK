@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using BookStoreDK.BL.Interfaces;
-using BookStoreDK.Extensions;
+﻿using BookStoreDK.Extensions;
 using BookStoreDK.Models.MediatR.Commands.AuthorCommands;
 using BookStoreDK.Models.Requests;
 using MediatR;
@@ -40,6 +38,7 @@ namespace BookStoreDK.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] AddAuthorRequest request)
         {
+            
             return this.ProduceResponse(await _mediator.Send(new AddAuthorCommand(request)));
         }
 
