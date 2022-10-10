@@ -1,4 +1,5 @@
 using System.Text;
+using BookStoreDK.BL.Background;
 using BookStoreDK.BL.CommandHandlers.BookCommandHandlers;
 using BookStoreDK.DL.Repositories.MsSql;
 using BookStoreDK.Extensions;
@@ -86,6 +87,9 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddMediatR(typeof(GetAllBooksCommandHandler).Assembly);
+
+builder.Services.AddHostedService<MyBackgroundService>();
+builder.Services.AddHostedService<MyHostedService>();
 
 builder.Services.AddIdentity<UserInfo, UserRole>()
     .AddUserStore<UserInfoStore>()
