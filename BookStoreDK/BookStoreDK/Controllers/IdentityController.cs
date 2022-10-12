@@ -5,7 +5,6 @@ using BookStoreDK.BL.Interfaces;
 using BookStoreDK.Models.Models.Users;
 using BookStoreDK.Models.Requests;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 //using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -17,14 +16,13 @@ namespace BookStoreDK.Controllers
     public class IdentityController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        //private readonly IUserInfoService _userInfoService;
         private readonly IIDentityService _identityService;
-       
+
 
         public IdentityController(IConfiguration configuration, IIDentityService identityService)
         {
             _configuration = configuration;
-            _identityService = identityService;            
+            _identityService = identityService;
         }
 
         [AllowAnonymous]
@@ -38,19 +36,19 @@ namespace BookStoreDK.Controllers
             }
 
             var result = await _identityService.CreateAsync(user);
-            return result != null? Ok(result) : BadRequest();
+            return result != null ? Ok(result) : BadRequest();
         }
 
         [AllowAnonymous]
         [HttpPost(nameof(Login))]
         public async Task<IActionResult> Login(LoginRequest loginRequest)
         {
-           
+
             if (loginRequest != null && !string.IsNullOrEmpty(loginRequest.UserName) && !string.IsNullOrEmpty(loginRequest.Password))
             {
                 var user = await _identityService.CheckUserAndPassword(loginRequest.UserName, loginRequest.Password);
 
-              
+
 
                 if (user != null)
                 {
@@ -63,7 +61,7 @@ namespace BookStoreDK.Controllers
                         new Claim("UserId", user.UserId.ToString()),
                         new Claim("DisplayName", user.DisplayName ?? string.Empty),
                         new Claim("UserName", user.UserName ?? string.Empty),
-                        new Claim("Email", user.Email ?? string.Empty),   
+                        new Claim("Email", user.Email ?? string.Empty),
                         new Claim("View","View"),
                         new Claim("Admin","Admin"),
                     };

@@ -1,7 +1,9 @@
 ﻿using BookStoreDK.BL.Interfaces;
+using BookStoreDK.BL.Kafka;
 using BookStoreDK.BL.Services;
 using BookStoreDK.DL.Intefraces;
 using BookStoreDK.DL.Repositories.MsSql;
+using BookStoreDK.Models.Models;
 
 namespace BookStoreDK.Extensions
 {
@@ -14,7 +16,9 @@ namespace BookStoreDK.Extensions
                .AddSingleton<IAuthorRepository, AuthorRepository>()
                .AddSingleton<IBookRepository, BookRepository>()
                .AddScoped<IUserInfoStore, UserInfoStore>()
-               .AddSingleton<IEmployeeRepository, EmployeeRepository>();
+               .AddSingleton<IEmployeeRepository, EmployeeRepository>()
+               .AddSingleton<KafkaConsumer<int, Book>>()
+               .AddSingleton<KafkaProducer<int, Book>>();
                
             return services;
         }
