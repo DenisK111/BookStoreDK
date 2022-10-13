@@ -499,7 +499,7 @@ namespace BookStoreDK.Tests
         private BookController GetBookController()
         {
             var service = new BookService(_bookRepositoryMock.Object, _mapper, _authorRepositoryMock.Object);
-           var controller = new BookController(null!);
+           var controller = new BookController(null!,null,null);
             return controller;
         }
     }

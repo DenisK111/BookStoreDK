@@ -3,7 +3,9 @@ using BookStoreDK.BL.CommandHandlers.BookCommandHandlers;
 using BookStoreDK.DL.Repositories.MsSql;
 using BookStoreDK.Extensions;
 using BookStoreDK.HealthChecks;
+using BookStoreDK.HostedServices;
 using BookStoreDK.Middleware;
+using BookStoreDK.Models.Configurations;
 using BookStoreDK.Models.Models.Users;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -20,9 +22,21 @@ var logger = new LoggerConfiguration()
     .WriteTo.Console(theme: AnsiConsoleTheme.Code)
     .CreateLogger();
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddSerilog(logger);
+
+builder.Services
+    .Configure<KafkaProducerSettings>(
+        builder.Configuration.GetSection(nameof(KafkaProducerSettings)))
+    .Configure<KafkaConsumerSettings>(
+        builder.Configuration.GetSection(nameof(KafkaConsumerSettings))
+    );
+
+builder.Services.AddHostedService<KafkaConsumersHostedService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(x =>
