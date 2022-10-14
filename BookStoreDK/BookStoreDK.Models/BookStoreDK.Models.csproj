@@ -13,4 +13,8 @@
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="6.0.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BookStoreDK.KafkaCache\BookStoreDK.KafkaCache.csproj" />
+  </ItemGroup>
+
 </Project>

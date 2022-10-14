@@ -1,5 +1,7 @@
-﻿using BookStoreDK.BL.Kafka;
+﻿
 using BookStoreDK.Extensions;
+using BookStoreDK.KafkaCache;
+using BookStoreDK.Models.Configurations;
 using BookStoreDK.Models.MediatR.Commands.BookCommands;
 using BookStoreDK.Models.Models;
 using BookStoreDK.Models.Requests;
@@ -13,17 +15,16 @@ namespace BookStoreDK.Controllers
     public class BookController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly KafkaProducer<int, Book> _kafkaBookProducer;
-        private readonly KafkaConsumer<int, Book> _kafkaConsumer;
+       
+        private readonly KafkaConsumer<int, Book,KafkaBookConsumerSettings> _kafkaConsumer;
         private readonly Random _random = new Random(Guid.NewGuid().GetHashCode());
 
-        public BookController(IMediator mediator, KafkaProducer<int, Book> kafkaBookProducer, KafkaConsumer<int, Book> kafkaConsumer)
+        public BookController(IMediator mediator, KafkaConsumer<int, Book, KafkaBookConsumerSettings> kafkaConsumer)
         {
             _mediator = mediator;
-            _kafkaBookProducer = kafkaBookProducer;
+           
             _kafkaConsumer = kafkaConsumer;
         }
-
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
@@ -46,25 +47,7 @@ namespace BookStoreDK.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] AddBookRequest model)
         {
-            var id = _random.Next(0, int.MaxValue);
-
-            var message = new Book()
-            {
-                Title = model.Title,
-                Quantity = model.Quantity,
-                LastUpdated = DateTime.UtcNow,
-                Price = model.Price,
-                AuthorId = model.AuthorId,
-                Id = id
-            };
-
-            var result = await _kafkaBookProducer.Produce(id, message);
-
-            if (result == null)
-            {
-                return BadRequest();
-            }
-            return Ok(result.Value);
+            return this.ProduceResponse(await _mediator.Send(new AddBookCommand(model)));
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -82,6 +65,20 @@ namespace BookStoreDK.Controllers
         public async Task<IActionResult> Delete([FromBody] int id)
         {
             return this.ProduceResponse(await _mediator.Send(new DeleteBookCommand(id)));
+        }
+
+        [HttpPost(nameof(AddIndex))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> AddIndex([FromBody] string propertyName)
+        {
+            var result =  _kafkaConsumer.AddIndex(propertyName);
+
+            if (!result.isSuccess)
+            {
+                return BadRequest(result.message);
+            }
+
+            return Ok();
         }
     }
 }

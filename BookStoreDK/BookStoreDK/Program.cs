@@ -22,17 +22,13 @@ var logger = new LoggerConfiguration()
     .WriteTo.Console(theme: AnsiConsoleTheme.Code)
     .CreateLogger();
 
-
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddSerilog(logger);
 
-builder.Services
-    .Configure<KafkaProducerSettings>(
-        builder.Configuration.GetSection(nameof(KafkaProducerSettings)))
-    .Configure<KafkaConsumerSettings>(
-        builder.Configuration.GetSection(nameof(KafkaConsumerSettings))
+builder.Services    
+    .Configure<KafkaBookConsumerSettings>(
+        builder.Configuration.GetSection(nameof(KafkaBookConsumerSettings))
     );
 
 builder.Services.AddHostedService<KafkaConsumersHostedService>();
@@ -83,6 +79,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.RegisterRepositories();
 builder.Services.RegisterServices()
     .AddAutoMapper(typeof(Program));
+builder.Services.RegisterKafkaConsumers();
 
 builder.Services.AddFluentValidationAutoValidation()
     .AddFluentValidationClientsideAdapters();
