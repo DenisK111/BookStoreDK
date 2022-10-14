@@ -1,8 +1,10 @@
 ﻿using BookStoreDK.BL.Interfaces;
-using BookStoreDK.BL.Kafka;
+
 using BookStoreDK.BL.Services;
 using BookStoreDK.DL.Intefraces;
 using BookStoreDK.DL.Repositories.MsSql;
+using BookStoreDK.KafkaCache;
+using BookStoreDK.Models.Configurations;
 using BookStoreDK.Models.Models;
 
 namespace BookStoreDK.Extensions
@@ -16,10 +18,8 @@ namespace BookStoreDK.Extensions
                .AddSingleton<IAuthorRepository, AuthorRepository>()
                .AddSingleton<IBookRepository, BookRepository>()
                .AddScoped<IUserInfoStore, UserInfoStore>()
-               .AddSingleton<IEmployeeRepository, EmployeeRepository>()
-               .AddSingleton<KafkaConsumer<int, Book>>()
-               .AddSingleton<KafkaProducer<int, Book>>();
-               
+               .AddSingleton<IEmployeeRepository, EmployeeRepository>();           
+                              
             return services;
         }
 
@@ -30,6 +30,14 @@ namespace BookStoreDK.Extensions
                 .AddScoped<IUserInfoService, EmployeeService>()
                 .AddTransient<IIDentityService,IdentityService>();
            
+            return services;
+        }
+
+        public static IServiceCollection RegisterKafkaConsumers(this IServiceCollection services)
+        {
+            services
+                .AddSingleton<KafkaConsumer<int, Book, KafkaBookConsumerSettings>>();
+
             return services;
         }
     }

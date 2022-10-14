@@ -1,9 +1,10 @@
-﻿using MessagePack;
+﻿using BookStoreDK.KafkaCache.Contracts;
+using MessagePack;
 
 namespace BookStoreDK.Models.Models
 {
     [MessagePackObject]
-    public record Book 
+    public record Book : ICacheItem<int>
     {
         [Key(0)]
         public int Id { get; set; }
@@ -17,5 +18,11 @@ namespace BookStoreDK.Models.Models
         public DateTime LastUpdated { get; init; }
         [Key(5)]
         public decimal Price { get; init; }
+
+        public int GetKey()
+        {
+            return Id;
+        }
+
     }
 }
