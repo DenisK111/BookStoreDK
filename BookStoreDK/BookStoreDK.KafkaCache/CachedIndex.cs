@@ -1,6 +1,4 @@
-﻿using BookStoreDK.KafkaCache.Contracts;
-
-namespace BookStoreDK.KafkaCache
+﻿namespace BookStoreDK.KafkaCache
 {
     public class CachedIndex<TValue>
     {

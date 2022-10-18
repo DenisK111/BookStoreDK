@@ -1,5 +1,5 @@
 ﻿using BookStoreDK.BL.Interfaces;
-
+using BookStoreDK.DL.Repositories.MongoRepositories;
 using BookStoreDK.BL.Services;
 using BookStoreDK.DL.Intefraces;
 using BookStoreDK.DL.Repositories.MsSql;
@@ -18,8 +18,10 @@ namespace BookStoreDK.Extensions
                .AddSingleton<IAuthorRepository, AuthorRepository>()
                .AddSingleton<IBookRepository, BookRepository>()
                .AddScoped<IUserInfoStore, UserInfoStore>()
-               .AddSingleton<IEmployeeRepository, EmployeeRepository>();           
-                              
+               .AddSingleton<IEmployeeRepository, EmployeeRepository>()
+               .AddSingleton<IPurchaseRepository, PurchaseRepository>()
+               .AddScoped<IShoppingCartRepository,ShoppingCartRepository>();
+
             return services;
         }
 
@@ -28,8 +30,11 @@ namespace BookStoreDK.Extensions
             services
                 .AddScoped<IEmployeeService, EmployeeService>()
                 .AddScoped<IUserInfoService, EmployeeService>()
-                .AddTransient<IIDentityService,IdentityService>();
-           
+                .AddScoped<IPurchaseService, PurchaseService>()
+                .AddScoped<IBookService, BookService>()
+                .AddTransient<IIDentityService, IdentityService>()
+                .AddScoped<IShoppingCartService, ShoppingCartService>();
+
             return services;
         }
 

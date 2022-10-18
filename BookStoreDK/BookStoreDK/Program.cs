@@ -28,8 +28,9 @@ builder.Logging.AddSerilog(logger);
 
 builder.Services    
     .Configure<KafkaBookConsumerSettings>(
-        builder.Configuration.GetSection(nameof(KafkaBookConsumerSettings))
-    );
+        builder.Configuration.GetSection(nameof(KafkaBookConsumerSettings)))
+     .Configure<MongoDbConfiguration>(
+            builder.Configuration.GetSection(nameof(MongoDbConfiguration)));
 
 builder.Services.AddHostedService<KafkaConsumersHostedService>();
 
