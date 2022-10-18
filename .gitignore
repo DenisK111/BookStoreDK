@@ -350,3 +350,6 @@ MigrationBackup/
 .ionide/
 
 #test
+
+*/appsettings.Development.json
+/BookStoreDK/BookStoreDK/appsettings.Development.json
