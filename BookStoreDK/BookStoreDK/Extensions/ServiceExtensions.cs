@@ -8,7 +8,8 @@ using BookStoreDK.Models.Configurations;
 using BookStoreDK.Models.Models;
 using BookStoreDK.Models.Models.KafkaConsumerModels;
 using BookStoreDK.Dataflow;
-
+using BookStoreDK.BL.HttpClientProviders.Contracts;
+using BookStoreDK.BL.HttpClientProviders.Implementations;
 
 namespace BookStoreDK.Extensions
 {
@@ -68,6 +69,14 @@ namespace BookStoreDK.Extensions
         {
             services
                 .AddSingleton<KafkaCache<int, Book, KafkaBookConsumerSettings>>();
+
+            return services;
+        }
+
+        public static IServiceCollection RegisterHttpProviders(this IServiceCollection services)
+        {
+            services
+                .AddSingleton<IAdditionalInfoProvider, AdditionalInfoProvider>();
 
             return services;
         }
