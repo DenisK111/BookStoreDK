@@ -29,10 +29,12 @@ builder.Logging.AddSerilog(logger);
 builder.Services    
     .Configure<KafkaBookConsumerSettings>(
         builder.Configuration.GetSection(nameof(KafkaBookConsumerSettings)))
+    .Configure<KafkaPurchaseConsumerSettings>(
+        builder.Configuration.GetSection(nameof(KafkaPurchaseConsumerSettings)))
+    .Configure<KafkaBookDeliveryConsumerSettings>(
+        builder.Configuration.GetSection(nameof(KafkaBookDeliveryConsumerSettings)))
      .Configure<MongoDbConfiguration>(
             builder.Configuration.GetSection(nameof(MongoDbConfiguration)));
-
-builder.Services.AddHostedService<KafkaConsumersHostedService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -77,10 +79,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddAutoMapper(typeof(Program));
+
 builder.Services.RegisterRepositories();
-builder.Services.RegisterServices()
-    .AddAutoMapper(typeof(Program));
+builder.Services.RegisterServices();
 builder.Services.RegisterKafkaConsumers();
+builder.Services.RegisterDataFlowHostedServices();
+builder.Services.RegisterCaches();
+builder.Services.AddHostedService<KafkaBookCacheHostedService>();
 
 builder.Services.AddFluentValidationAutoValidation()
     .AddFluentValidationClientsideAdapters();

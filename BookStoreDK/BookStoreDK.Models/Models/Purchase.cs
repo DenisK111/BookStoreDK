@@ -11,4 +11,5 @@
 
         public int UserId { get; set; }
     }
+
 }

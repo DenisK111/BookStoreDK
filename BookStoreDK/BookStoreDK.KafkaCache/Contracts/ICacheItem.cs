@@ -1,10 +1,8 @@
 ﻿namespace BookStoreDK.KafkaCache.Contracts
 {
-    public interface ICacheItem<out T>
+    public interface ICacheItem<T> : IKafkaItem<T>
     {
         public DateTime LastUpdated { get; init; }
-        T GetKey();
-
-       
+        T GetKey();       
     }
 }

@@ -2,7 +2,7 @@
 
 namespace BookStoreDK.Models.Configurations
 {
-    public class KafkaBookConsumerSettings : IKafkaConsumerSettings
+    public class KafkaPurchaseConsumerSettings : IKafkaConsumerSettings
     {
         public string BootstrapServers { get; set; }
         public string Topic { get; set; }

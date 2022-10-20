@@ -160,7 +160,7 @@ namespace BookStoreDK.DL.Repositories.MsSql
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     await conn.OpenAsync();
-                    var result = await conn.QuerySingleAsync<Book>(query, model);
+                    var result = await conn.QuerySingleAsync<Book>(query, model);                    
                     return result;
                 }
             }
