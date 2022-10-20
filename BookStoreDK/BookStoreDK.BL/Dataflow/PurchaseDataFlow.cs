@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks.Dataflow;
 using BookStoreDK.BL.Dataflow;
+using BookStoreDK.BL.HttpClientProviders.Contracts;
 using BookStoreDK.DL.Intefraces;
 using BookStoreDK.KafkaCache;
 using BookStoreDK.Models.Configurations;
@@ -14,9 +15,11 @@ namespace BookStoreDK.Dataflow
         private readonly IBookRepository _bookRepository;
         private readonly TransformBlock<PurchaseObject, Dictionary<int, int>> _getQuantityBlock;
         private readonly ActionBlock<Dictionary<int, int>> _writeToDatabaseBlock;
+        private readonly IAdditionalInfoProvider _additionalInfoProvider;
 
-        public PurchaseDataFlow(KafkaConsumer<Guid, PurchaseObject, KafkaPurchaseConsumerSettings> kafkaConsumer, IBookRepository bookRepository)
+        public PurchaseDataFlow(KafkaConsumer<Guid, PurchaseObject, KafkaPurchaseConsumerSettings> kafkaConsumer, IBookRepository bookRepository, IAdditionalInfoProvider additionalInfoProvider)
         {
+            _additionalInfoProvider = additionalInfoProvider;
             _bookRepository = bookRepository;
 
             var options = new ExecutionDataflowBlockOptions()
@@ -35,18 +38,34 @@ namespace BookStoreDK.Dataflow
 
             _getQuantityBlock.LinkTo(_writeToDatabaseBlock, linkOptions);
             _kafkaConsumer = kafkaConsumer;
-        }      
+        }
 
         protected override async Task StartDataFlow(CancellationToken cancellationToken)
         {
             Action<PurchaseObject> postMessage = async x => await _getQuantityBlock.SendAsync(x);
             await _kafkaConsumer.HandleMessages(postMessage, cancellationToken);
-        }        
+        }
 
         private async Task<Dictionary<int, int>> GetIdValuePairs(PurchaseObject purchase)
         {
             var result = new Dictionary<int, int>();
+            var authorIds = purchase.Books.Select(x => x.AuthorId).Distinct();
 
+            var authorInfoListTasks = new List<Task<string>>();
+
+            foreach (var authorId in authorIds)
+            {
+                var t = Task<string>.Run(async () =>
+                {
+                    var info = await _additionalInfoProvider.GetAdditionalInfo(authorId);
+                    return info;
+                });
+
+                authorInfoListTasks.Add(t);
+            }
+
+            purchase.AdditionalInfo = await Task.WhenAll(authorInfoListTasks);                       
+                      
             foreach (var item in purchase.Books)
             {
                 var id = item.Id;
@@ -99,7 +118,7 @@ namespace BookStoreDK.Dataflow
                 };
                 await _bookRepository.Update(updatedBook);
             }
-        }        
+        }
 
         public override void Dispose()
         {

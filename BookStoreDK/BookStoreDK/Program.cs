@@ -26,7 +26,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddSerilog(logger);
 
-builder.Services    
+builder.Services
+    .Configure<AdditionalInfoProviderSettings>(
+        builder.Configuration.GetSection(nameof(AdditionalInfoProviderSettings)))
     .Configure<KafkaBookConsumerSettings>(
         builder.Configuration.GetSection(nameof(KafkaBookConsumerSettings)))
     .Configure<KafkaPurchaseConsumerSettings>(
@@ -86,6 +88,8 @@ builder.Services.RegisterServices();
 builder.Services.RegisterKafkaConsumers();
 builder.Services.RegisterDataFlowHostedServices();
 builder.Services.RegisterCaches();
+builder.Services.RegisterHttpProviders();
+
 builder.Services.AddHostedService<KafkaBookCacheHostedService>();
 
 builder.Services.AddFluentValidationAutoValidation()
