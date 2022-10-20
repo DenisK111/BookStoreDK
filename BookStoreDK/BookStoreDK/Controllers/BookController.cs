@@ -16,10 +16,10 @@ namespace BookStoreDK.Controllers
     {
         private readonly IMediator _mediator;
        
-        private readonly KafkaConsumer<int, Book,KafkaBookConsumerSettings> _kafkaConsumer;
+        private readonly KafkaCache<int, Book,KafkaBookConsumerSettings> _kafkaConsumer;
         private readonly Random _random = new Random(Guid.NewGuid().GetHashCode());
 
-        public BookController(IMediator mediator, KafkaConsumer<int, Book, KafkaBookConsumerSettings> kafkaConsumer)
+        public BookController(IMediator mediator, KafkaCache<int, Book, KafkaBookConsumerSettings> kafkaConsumer)
         {
             _mediator = mediator;
            
@@ -69,7 +69,7 @@ namespace BookStoreDK.Controllers
 
         [HttpPost(nameof(AddIndex))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> AddIndex([FromBody] string propertyName)
+        public IActionResult AddIndex([FromBody] string propertyName)
         {
             var result =  _kafkaConsumer.AddIndex(propertyName);
 

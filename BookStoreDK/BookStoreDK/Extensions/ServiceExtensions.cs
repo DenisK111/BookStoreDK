@@ -6,6 +6,9 @@ using BookStoreDK.DL.Repositories.MsSql;
 using BookStoreDK.KafkaCache;
 using BookStoreDK.Models.Configurations;
 using BookStoreDK.Models.Models;
+using BookStoreDK.Models.Models.KafkaConsumerModels;
+using BookStoreDK.Dataflow;
+
 
 namespace BookStoreDK.Extensions
 {
@@ -20,7 +23,7 @@ namespace BookStoreDK.Extensions
                .AddScoped<IUserInfoStore, UserInfoStore>()
                .AddSingleton<IEmployeeRepository, EmployeeRepository>()
                .AddSingleton<IPurchaseRepository, PurchaseRepository>()
-               .AddScoped<IShoppingCartRepository,ShoppingCartRepository>();
+               .AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
 
             return services;
         }
@@ -40,8 +43,31 @@ namespace BookStoreDK.Extensions
 
         public static IServiceCollection RegisterKafkaConsumers(this IServiceCollection services)
         {
+            // DATAFLOW CONSUMERS
+            services
+                .AddSingleton<KafkaConsumer<Guid, PurchaseObject, KafkaPurchaseConsumerSettings>>()
+                .AddSingleton<KafkaConsumer<int, BookDeliveryObject, KafkaBookDeliveryConsumerSettings>>();
+
+            // CACHE CONSUMERS
             services
                 .AddSingleton<KafkaConsumer<int, Book, KafkaBookConsumerSettings>>();
+
+            return services;
+        }
+
+        public static IServiceCollection RegisterDataFlowHostedServices(this IServiceCollection services)
+        {
+            services
+                .AddHostedService<DeliveryDataFlow>()
+                .AddHostedService<PurchaseDataFlow>();
+
+            return services;
+        }
+
+        public static IServiceCollection RegisterCaches(this IServiceCollection services)
+        {
+            services
+                .AddSingleton<KafkaCache<int, Book, KafkaBookConsumerSettings>>();
 
             return services;
         }
